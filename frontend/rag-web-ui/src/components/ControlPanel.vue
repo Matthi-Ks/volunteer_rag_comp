@@ -29,7 +29,7 @@
                <label class="relative inline-flex items-center cursor-pointer select-none">
                   <input type="checkbox" class="sr-only peer" />
                   <div
-                     class="w-7 h-4 bg-slate-200 dark:bg-slate-800 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-blue-600 dark:peer-checked:bg-blue-500 border border-transparent dark:border-slate-700/50">
+                     class="w-7 h-4 bg-slate-300 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-blue-600 dark:peer-checked:bg-blue-500 border border-slate-200">
                   </div>
                </label>
             </div>
@@ -42,7 +42,7 @@
                <label class="relative inline-flex items-center cursor-pointer select-none">
                   <input type="checkbox" class="sr-only peer" />
                   <div
-                     class="w-7 h-4 bg-slate-200 dark:bg-slate-800 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-blue-600 dark:peer-checked:bg-blue-500 border border-transparent dark:border-slate-700/50">
+                     class="w-7 h-4 bg-slate-300 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-blue-600 dark:peer-checked:bg-blue-500 border border-slate-200">
                   </div>
                </label>
             </div>
@@ -55,7 +55,7 @@
             <label class="relative inline-flex items-center cursor-pointer select-none">
                <input type="checkbox" class="sr-only peer" checked />
                <div
-                  class="w-7 h-4 bg-slate-200 dark:bg-slate-800 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-blue-600 dark:peer-checked:bg-blue-500 border border-transparent dark:border-slate-700/50">
+                  class="w-7 h-4 bg-slate-300 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-blue-600 dark:peer-checked:bg-blue-500 border border-slate-200">
                </div>
             </label>
          </div>
