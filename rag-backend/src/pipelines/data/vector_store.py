@@ -1,7 +1,7 @@
 import os
 import chromadb
 
-DB_PATH = "src/resources/vector_store"
+DB_PATH = "../../resources/vector_store"
 
 class VectorStore:
     def __init__(self):
