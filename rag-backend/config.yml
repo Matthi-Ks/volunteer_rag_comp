@@ -1,0 +1,24 @@
+# ollama
+ollama:
+  url: "http://localhost:11434/v1"
+  model: "ministral-3:8b"
+  timeout: 60.0
+
+# file paths used for indexing
+paths:
+  # initial csv data
+  csv: "resources/datasets/final_sample.csv"
+  # processed csv data
+  json: "resources/datasets/processed_volunteer_data.json"
+  vectordb: "resources/vectordb"
+
+# determines which part of the application gets run
+# indexing -> starts indexing phase
+# rag -> starts the actual rag application
+mode: "indexing"
+#mode: "rag"
+
+# determines if preprocessed data is reused or newly built
+keep_data: true
+# determines if vectordb is reused or newly built
+keep_vectordb: true
