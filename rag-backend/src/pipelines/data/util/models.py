@@ -6,7 +6,7 @@ class ActivityMetadata(BaseModel):
     location: str = Field(
         description="The city, country, or specific location of the organization. If remote or not mentioned, set to 'Remote'."
     )
-    start_time: str = Field(
+    starting_date: str = Field(
         description="The starting date or timeframe. If not mentioned, strictly set to 'As soon as possible'."
     )
     end_date: Optional[str] = Field(
@@ -34,4 +34,10 @@ class TextVariations(BaseModel):
 class Activity(BaseModel):
     id: str
     text_variations: TextVariations
+    soft_skills: list[str]
     metadata: ActivityMetadata
+
+class SPOTriple(BaseModel):
+    subject: str = Field(..., description="the main entity")
+    predicate: str = Field(..., description="the relationship")
+    object: str = Field(..., description="the related entity")

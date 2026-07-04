@@ -11,6 +11,7 @@ paths:
   # processed csv data
   json: "resources/datasets/processed_volunteer_data.json"
   vectordb: "resources/vectordb"
+  knowledge_graph: "resources/knowledge_graph/graph.pkl"
 
 # determines which part of the application gets run
 # indexing -> starts indexing phase
@@ -20,5 +21,9 @@ mode: "indexing"
 
 # determines if preprocessed data is reused or newly built
 keep_data: true
+
 # determines if vectordb is reused or newly built
 keep_vectordb: true
+
+# determines if knowledge graph is reused or newly built
+keep_knowledge_graph: false

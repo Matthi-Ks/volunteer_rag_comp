@@ -3,8 +3,8 @@ import chromadb
 from chromadb.types import Collection
 from chromadb.utils.embedding_functions import MistralEmbeddingFunction
 from dotenv import load_dotenv
-from pipelines.data.config_loader import load_config
-from pipelines.data.models import Activity
+from pipelines.data.util.config_loader import load_config
+from pipelines.data.util.models import Activity
 
 #load mistral API key
 load_dotenv()
@@ -47,7 +47,6 @@ class VectorStore:
                 metadata[name].append(activity.metadata.to_chromadb_metadata())
                 ids[name].append(activity.id)
                 documents[name].append(getattr(activity.text_variations, name)) # assuming that the collectons name match text variation names
-
 
         for name in self.collection_names:
             if documents[name]:

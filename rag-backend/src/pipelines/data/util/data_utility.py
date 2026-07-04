@@ -1,12 +1,11 @@
 import json
 import os
-from typing import Any
 
 import pandas as pd
 
-from pipelines.data.config_loader import load_config
-from pipelines.data.metadata_extraction import extract_metadata
-from pipelines.data.models import ActivityMetadata, Activity, TextVariations
+from pipelines.data.util.config_loader import load_config
+from pipelines.data.util.metadata_extraction import extract_metadata
+from pipelines.data.util.models import ActivityMetadata, Activity, TextVariations
 
 TITLE_ONLY_TEXT_TEMPLATE = "The activity {title} is looking for a volunteer."
 TITLE_SOFTSKILL_TEXT_TEMPLATE = "The activity {title} is looking for a volunteer possessing these skills: {skills}."
@@ -15,6 +14,7 @@ TITLE_DESC_SOFTSKILL_TEXT_TEMPLATE = ("The activity {title}, described by: {desc
                                       "is looking for a volunteer possessing these skills: {skills}.")
 
 config = load_config()
+
 
 class DataUtility:
     def __init__(self):
@@ -32,18 +32,21 @@ class DataUtility:
     def process_data(self) -> list[Activity]:
         activities = []
         for row in self.df.itertuples():
-            formated_skills = str(row.transversalSkillList).replace("'", '').replace("[",'').replace("]", '')
+            formated_skills = str(row.transversalSkillList).replace("'", '').replace("[", '').replace("]", '')
             extr_metadata: ActivityMetadata = extract_metadata(row.description)
 
             activity = Activity(
-                id = str(row.task_id),
-                text_variations = TextVariations(
-                    title_only = TITLE_ONLY_TEXT_TEMPLATE.format(title=row.title),
-                    title_softskill = TITLE_SOFTSKILL_TEXT_TEMPLATE.format(title=row.title,skills=formated_skills),
-                    title_desc = TITLE_DESC_TEXT_TEMPLATE.format(title=row.title, description=row.description),
-                    title_desc_softskill = TITLE_DESC_SOFTSKILL_TEXT_TEMPLATE.format(title=row.title, description=row.description, skills=formated_skills)
+                id=str(row.task_id),
+                text_variations=TextVariations(
+                    title_only=TITLE_ONLY_TEXT_TEMPLATE.format(title=row.title),
+                    title_softskill=TITLE_SOFTSKILL_TEXT_TEMPLATE.format(title=row.title, skills=formated_skills),
+                    title_desc=TITLE_DESC_TEXT_TEMPLATE.format(title=row.title, description=row.description),
+                    title_desc_softskill=TITLE_DESC_SOFTSKILL_TEXT_TEMPLATE.format(title=row.title,
+                                                                                   description=row.description,
+                                                                                   skills=formated_skills)
                 ),
-                metadata = extr_metadata
+                metadata=extr_metadata,
+                soft_skills=formated_skills.split(",")
             )
 
             activities.append(activity)
@@ -65,4 +68,3 @@ class DataUtility:
             data = json.load(f)
 
         return [Activity(**item) for item in data]
-
