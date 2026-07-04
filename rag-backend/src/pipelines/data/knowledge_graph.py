@@ -4,7 +4,7 @@ import os
 import networkx as nx
 import matplotlib.pyplot as plt
 from pipelines.data.util.config_loader import load_config
-from pipelines.data.util.models import Activity
+from pipelines.data.models.activity import Activity
 
 config = load_config()
 

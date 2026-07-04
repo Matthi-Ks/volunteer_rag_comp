@@ -1,10 +1,12 @@
 import os
 import chromadb
+
+from chromadb import Knn, Rrf
 from chromadb.types import Collection
-from chromadb.utils.embedding_functions import MistralEmbeddingFunction
+from chromadb.utils.embedding_functions import MistralEmbeddingFunction, ChromaBm25EmbeddingFunction
 from dotenv import load_dotenv
 from pipelines.data.util.config_loader import load_config
-from pipelines.data.util.models import Activity
+from pipelines.data.models.activity import Activity
 
 #load mistral API key
 load_dotenv()
@@ -29,10 +31,11 @@ class VectorStore:
         for name in self.collection_names:
             self.collections[name]: Collection = self.db_client.get_or_create_collection(
                 name=name,
-                embedding_function = MistralEmbeddingFunction(
+                embedding_function=MistralEmbeddingFunction(
                     model= "mistral-embed",
                     api_key_env_var="MISTRAL_API_KEY"
-                )
+                ),
+                sparse_embedding_function=ChromaBm25EmbeddingFunction()
             )
 
     def index(self, data: list[Activity]):
@@ -66,5 +69,22 @@ class VectorStore:
 
     def clear_collection(self, collection_name):
         self.db_client.delete_collection(collection_name)
+
+    # use semantic search only (dense embeddings)
+    def semantic_similarity_search(self, collection: str, query_text: str, n: int):
+        return self.collections[collection].query(
+            query_text=query_text,
+            n=n
+        )
+
+    # use semantic search + BM25 (dense + sparse embeddings)
+    def hybrid_search(self, collection: str, query_text: str):
+        return self.collections[collection].search(
+            search = [
+                Knn(query_texts=query_text, n_results=10),
+                Rrf(query_texts=query_text, k=60)
+            ],
+            n_results=5
+        )
 
 

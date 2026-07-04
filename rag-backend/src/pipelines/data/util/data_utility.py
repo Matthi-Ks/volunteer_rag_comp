@@ -5,7 +5,7 @@ import pandas as pd
 
 from pipelines.data.util.config_loader import load_config
 from pipelines.data.util.metadata_extraction import extract_metadata
-from pipelines.data.util.models import ActivityMetadata, Activity, TextVariations
+from pipelines.data.models.activity import ActivityMetadata, Activity, TextVariations
 
 TITLE_ONLY_TEXT_TEMPLATE = "The activity {title} is looking for a volunteer."
 TITLE_SOFTSKILL_TEXT_TEMPLATE = "The activity {title} is looking for a volunteer possessing these skills: {skills}."

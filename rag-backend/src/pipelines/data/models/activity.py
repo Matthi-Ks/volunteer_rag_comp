@@ -36,8 +36,3 @@ class Activity(BaseModel):
     text_variations: TextVariations
     soft_skills: list[str]
     metadata: ActivityMetadata
-
-class SPOTriple(BaseModel):
-    subject: str = Field(..., description="the main entity")
-    predicate: str = Field(..., description="the relationship")
-    object: str = Field(..., description="the related entity")
