@@ -21,7 +21,9 @@ def main():
         if not config["keep_knowledge_graph"]:
             knowledgeGraph.build_graphs(processed_data)
             # plot graph
-            knowledgeGraph.plot_graph(knowledgeGraph.title_graph)
+            #knowledgeGraph.plot_graph(knowledgeGraph.title_graph)
+        else:
+            knowledgeGraph.load_graphs()
 
     elif config["mode"] == "rag":
         print("not implemented yet")

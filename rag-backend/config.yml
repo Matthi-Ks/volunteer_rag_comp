@@ -11,7 +11,7 @@ paths:
   # processed csv data
   json: "resources/datasets/processed_volunteer_data.json"
   vectordb: "resources/vectordb"
-  knowledge_graph: "resources/knowledge_graph/graph.pkl"
+  knowledge_graph: "resources/knowledge_graph"
 
 # determines which part of the application gets run
 # indexing -> starts indexing phase

@@ -1,2 +1,3 @@
 /rag-backend/.env
 /rag-backend/src/resources/vectordb/
+/rag-backend/src/resources/knowledge_graph/

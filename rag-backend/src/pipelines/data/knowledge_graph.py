@@ -1,3 +1,6 @@
+import json
+import os
+
 import networkx as nx
 import matplotlib.pyplot as plt
 from pipelines.data.util.config_loader import load_config
@@ -7,13 +10,15 @@ config = load_config()
 
 class KnowledgeGraph:
     def __init__(self):
-        self.path = config["paths"]["knowledge_graph"]
+        os.makedirs(config["paths"]["knowledge_graph"], exist_ok=True)
         self.title_graph = nx.MultiDiGraph()
+        self.title_graph_path = f"{config['paths']['knowledge_graph']}/title_graph.json"
         self.title_desc_graph = nx.MultiDiGraph()
+        self.title_desc_graph_path = f"{config['paths']['knowledge_graph']}/title_desc_graph.json"
 
     # property graph
     def build_graphs(self, data: list[Activity]):
-        # build title graph with skills and location as separate nodes
+        # build graphs with skills and locations as separate nodes
         for activity in data:
             self.title_graph.add_node(activity.id, type="Activity",
                                       text=activity.text_variations.title_only,
@@ -38,6 +43,9 @@ class KnowledgeGraph:
             loc_id = self.__get_or_create_loc_node(self.title_desc_graph, activity.metadata.location)
             self.title_desc_graph.add_edge(activity.id, loc_id, "LOCATED_IN")
 
+        self.__save_graph_to_json(self.title_graph, self.title_graph_path)
+        self.__save_graph_to_json(self.title_desc_graph, self.title_desc_graph_path)
+
 
     def __get_or_create_skill_node(self, graph: nx.MultiDiGraph, skill: str) -> str:
         skill_id = f"skl_{skill.lower().strip().replace(' ', '_')}"
@@ -50,6 +58,24 @@ class KnowledgeGraph:
         if not graph.has_node(loc_id):
             graph.add_node(loc_id, type="Location", name=loc)
         return loc_id
+
+    def __save_graph_to_json(self, graph, path):
+        json_graph = nx.node_link_data(graph)
+        with open(path, "w", encoding="utf-8") as f:
+            json.dump(json_graph, f, ensure_ascii=False, indent=4)
+
+    def load_graphs(self):
+        if not os.path.exists(self.title_graph_path):
+            raise FileNotFoundError(f"File not found: {self.title_graph_path}")
+        if not os.path.exists(self.title_desc_graph_path):
+            raise FileNotFoundError(f"File not found: {self.title_desc_graph_path}")
+
+        with open(self.title_graph_path, "r") as f:
+            self.title_graph = nx.node_link_graph(json.load(f), edges="links", create_using=nx.MultiDiGraph)
+
+        with open(self.title_desc_graph_path, "r") as f:
+            self.title_desc_graph = nx.node_link_graph(json.load(f), edges="links", create_using=nx.MultiDiGraph)
+
 
     # ai generated
     def plot_graph(self, graph):
