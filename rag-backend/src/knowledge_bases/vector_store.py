@@ -9,10 +9,9 @@ from util.config_loader import load_config
 from models.activity import Activity
 from util.embedding_function import get_embedding_function
 
-#load mistral API key
-load_dotenv()
 config = load_config()
 
+# todo look into using Enums for collection names
 class VectorStore:
     def __init__(self):
         os.makedirs(config["paths"]["vectordb"], exist_ok=True)
@@ -68,7 +67,7 @@ class VectorStore:
         self.db_client.delete_collection(collection_name)
 
     # use semantic search only (dense embeddings)
-    def semantic_similarity_search(self, query: Query, n: int):
+    def semantic_similarity_search(self, query: Query, n: int = 10) -> list[dict]:
         filter = query.filter_values if query.options.useMetadataFilter else None
         results = self.collections[query.options.informationTier].query(
             query_text=query.query_text,
@@ -87,7 +86,7 @@ class VectorStore:
         return formatted
 
     # use BM25 algorithm for keyword search
-    def bm25_search(self, query: Query, n: int):
+    def bm25_search(self, query: Query, n: int = 10) -> list[dict]:
         filter = query.filter_values if query.options.useMetadataFilter else None
         all_docs = self.collections[query.options.informationTier].get(
             include=["documents", "metadatas"],

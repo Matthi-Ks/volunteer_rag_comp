@@ -1,6 +1,7 @@
 from chromadb.utils.embedding_functions import MistralEmbeddingFunction
 from dotenv import load_dotenv
 
+#load mistral API key
 load_dotenv()
 
 def get_embedding_function():
