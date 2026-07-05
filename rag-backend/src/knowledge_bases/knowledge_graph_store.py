@@ -3,12 +3,12 @@ import os
 
 import networkx as nx
 import matplotlib.pyplot as plt
-from pipelines.data.util.config_loader import load_config
-from pipelines.data.models.activity import Activity
+from util.config_loader import load_config
+from models.activity import Activity
 
 config = load_config()
 
-class KnowledgeGraph:
+class KnowledgeGraphStore:
     def __init__(self):
         os.makedirs(config["paths"]["knowledge_graph"], exist_ok=True)
         self.title_graph = nx.MultiDiGraph()

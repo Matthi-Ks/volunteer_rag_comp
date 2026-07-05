@@ -2,7 +2,7 @@ from enum import Enum
 
 from pydantic import BaseModel
 
-from pipelines.data.models.activity import ActivityMetadata
+from models.activity import ActivityMetadata
 
 
 class InformationTier(Enum):

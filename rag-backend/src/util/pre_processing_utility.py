@@ -3,9 +3,9 @@ import os
 
 import pandas as pd
 
-from pipelines.data.util.config_loader import load_config
-from pipelines.data.util.metadata_extraction import extract_metadata
-from pipelines.data.models.activity import ActivityMetadata, Activity, TextVariations
+from util.config_loader import load_config
+from util.metadata_extraction import extract_metadata
+from models.activity import ActivityMetadata, Activity, TextVariations
 
 TITLE_ONLY_TEXT_TEMPLATE = "The activity {title} is looking for a volunteer."
 TITLE_SOFTSKILL_TEXT_TEMPLATE = "The activity {title} is looking for a volunteer possessing these skills: {skills}."
@@ -15,8 +15,7 @@ TITLE_DESC_SOFTSKILL_TEXT_TEMPLATE = ("The activity {title}, described by: {desc
 
 config = load_config()
 
-
-class DataUtility:
+class PreProcessingUtility:
     def __init__(self):
         self.csv_path = config["paths"]["csv"]
         self.json_path = config["paths"]["json"]

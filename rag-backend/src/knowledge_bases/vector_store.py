@@ -1,12 +1,13 @@
 import os
 import chromadb
 
-from chromadb import Knn, Rrf
 from chromadb.types import Collection
-from chromadb.utils.embedding_functions import MistralEmbeddingFunction, ChromaBm25EmbeddingFunction
 from dotenv import load_dotenv
-from pipelines.data.util.config_loader import load_config
-from pipelines.data.models.activity import Activity
+from rank_bm25 import BM25Okapi
+from models.query import Query
+from util.config_loader import load_config
+from models.activity import Activity
+from util.embedding_function import get_embedding_function
 
 #load mistral API key
 load_dotenv()
@@ -31,11 +32,7 @@ class VectorStore:
         for name in self.collection_names:
             self.collections[name]: Collection = self.db_client.get_or_create_collection(
                 name=name,
-                embedding_function=MistralEmbeddingFunction(
-                    model= "mistral-embed",
-                    api_key_env_var="MISTRAL_API_KEY"
-                ),
-                sparse_embedding_function=ChromaBm25EmbeddingFunction()
+                embedding_function=get_embedding_function()
             )
 
     def index(self, data: list[Activity]):
@@ -71,20 +68,47 @@ class VectorStore:
         self.db_client.delete_collection(collection_name)
 
     # use semantic search only (dense embeddings)
-    def semantic_similarity_search(self, collection: str, query_text: str, n: int):
-        return self.collections[collection].query(
-            query_text=query_text,
+    def semantic_similarity_search(self, query: Query, n: int):
+        filter = query.filter_values if query.options.useMetadataFilter else None
+        results = self.collections[query.options.informationTier].query(
+            query_text=query.query_text,
+            where=filter,
             n=n
         )
 
-    # use semantic search + BM25 (dense + sparse embeddings)
-    def hybrid_search(self, collection: str, query_text: str):
-        return self.collections[collection].search(
-            search = [
-                Knn(query_texts=query_text, n_results=10),
-                Rrf(query_texts=query_text, k=60)
-            ],
-            n_results=5
+        formatted = []
+        if results['ids']:
+            for idx in range(len(results['ids'][0])):
+                formatted.append({
+                    "id": results['ids'][0][idx],
+                    "text": results['documents'][0][idx],
+                    "metadata": results['metadatas'][0][idx]
+                })
+        return formatted
+
+    # use BM25 algorithm for keyword search
+    def bm25_search(self, query: Query, n: int):
+        filter = query.filter_values if query.options.useMetadataFilter else None
+        all_docs = self.collections[query.options.informationTier].get(
+            include=["documents", "metadatas"],
+            where=filter
         )
+
+        tokenized_query = query.query_text.lower().split()
+        tokenized_docs = [doc.lower().strip() for doc in all_docs["documents"]]
+        bm25 = BM25Okapi(tokenized_docs)
+
+        scores = bm25.get_scores(tokenized_query)
+        top_indices = sorted(range(len(scores)), key=lambda i: scores[i], reverse=True)[:n]
+
+        formatted = []
+        for idx in top_indices:
+            formatted.append({
+                "id": all_docs['ids'][idx],
+                "text": all_docs['documents'][idx],
+                "metadata": all_docs['metadatas'][idx] if all_docs['metadatas'] else {}
+            })
+        return formatted
+
 
 

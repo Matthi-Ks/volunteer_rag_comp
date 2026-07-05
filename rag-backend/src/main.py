@@ -1,15 +1,15 @@
-from pipelines.data.knowledge_graph import KnowledgeGraph
-from pipelines.data.util.config_loader import load_config
-from pipelines.data.util.data_utility import DataUtility
-from pipelines.data.vector_store import VectorStore
+from knowledge_bases import KnowledgeGraphStore
+from util.config_loader import load_config
+from util.pre_processing_utility import PreProcessingUtility
+from knowledge_bases import VectorStore
 
 config = load_config()
 
 def main():
     vector_store = VectorStore()
-    knowledgeGraph = KnowledgeGraph()
+    knowledgeGraph = KnowledgeGraphStore()
     if config["mode"] == "indexing":
-        data_util = DataUtility()
+        data_util = PreProcessingUtility()
         if not config["keep_data"]:
             processed_data = data_util.process_data()
         else:

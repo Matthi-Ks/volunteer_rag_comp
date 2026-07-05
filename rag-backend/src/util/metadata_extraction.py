@@ -1,7 +1,7 @@
 import instructor
 
-from pipelines.data.util.config_loader import load_config
-from pipelines.data.models.activity import ActivityMetadata
+from util.config_loader import load_config
+from models.activity import ActivityMetadata
 
 config = load_config()
 
