@@ -1,20 +1,18 @@
-from matplotlib.patheffects import Normal
+import uvicorn
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
 from knowledge_bases.knowledge_graph_store import KnowledgeGraphStore
 from knowledge_bases.vector_store import VectorStore
-from models.activity import ActivityMetadata
-from models.query import Query, QueryOptions, InformationTier, RAGPipeline, QueryTextVariation
-from pipelines.hybrid_rag.hybrid_rag import HybridRag
-from pipelines.services import RerankingService, LLMService
 from util.config_loader import load_config
 from util.pre_processing_utility import PreProcessingUtility
+from endpoints.rest import router
 
 config = load_config()
 
-vector_store = VectorStore()
-kg_store = KnowledgeGraphStore()
-
 def run_indexing():
+    vector_store = VectorStore()
+    kg_store = KnowledgeGraphStore()
     data_util = PreProcessingUtility()
     if not config["keep_data"]:
         processed_data = data_util.process_data()
@@ -31,37 +29,30 @@ def run_indexing():
     else:
         kg_store.load_graphs()
 
-def run_rag():
-    query = Query(
-        text_variations={
-            QueryTextVariation.NORMAL: "I want to volunteer preferably doing administrative tasks",
-            QueryTextVariation.ABSTRACT: "I want to volunteer preferably doing administrative tasks",
-            QueryTextVariation.DETAILED: "I want to volunteer preferably doing administrative tasks"
-        },
-        options=QueryOptions(
-            useMetadataFilter=False,
-            informationTier=InformationTier.TITLE_DESC_SOFTSKILL,
-            pipeline=RAGPipeline.HYBRID
-        ),
-        filter_values=ActivityMetadata(
-            location="",
-            starting_date="",
-            end_date=None
-        )
+def create_app() -> FastAPI:
+    app = FastAPI(
+        title="Volunteer RAG API",
+        version="1.0.0"
     )
-    hybrid_rag = HybridRag(
-        vectorStore=vector_store,
-        kg_store=kg_store,
-        rerankService=RerankingService(),
-        llmService=LLMService()
+
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=["*"],
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
     )
-    hybrid_rag.execute_pipeline(query)
+
+    app.include_router(router, prefix="/api", tags=["RAG Endpoints"])
+    return app
+
+app = create_app()
 
 def main():
     if config["mode"] == "indexing":
         run_indexing()
     elif config["mode"] == "rag":
-        run_rag()
+        uvicorn.run("main:app", host="0.0.0.0", port=8080, reload=False)
     else:
         raise RuntimeError("Choose either \"indexing\" or \"rag\" as application mode in config.yml")
 

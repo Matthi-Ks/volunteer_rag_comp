@@ -16,6 +16,9 @@ class HybridRag(RagBase):
 
         text_contexts: list[list[str]]  = self.rerankService.colbert_rerank(list(query.text_variations.values()), merged_results)
 
+        responses = []
         for context, query_text in zip(text_contexts, list(query.text_variations.values())):
             resp = self.llmService.generate_answer(query_text, context)
-            print(resp+"\n")
+            responses.append(resp)
+
+        return responses

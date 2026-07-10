@@ -9,3 +9,5 @@ networkx
 matplotlib
 rank_bm25
 pylate
+fastapi
+uvicorn
