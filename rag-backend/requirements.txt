@@ -7,8 +7,5 @@ python-dotenv
 pyyaml
 networkx
 matplotlib
-langchain
-langchain-ollama
-langchain-community
 rank_bm25
 pylate

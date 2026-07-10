@@ -16,13 +16,18 @@ class RAGPipeline(Enum):
     GRAPH = "graph"
     FUSION = "fusion"
 
+class QueryTextVariation(Enum):
+    NORMAL = "normal"
+    ABSTRACT = "abstract"
+    DETAILED = "detailed"
+
 class QueryOptions(BaseModel):
     informationTier: InformationTier
     pipeline: RAGPipeline
     useMetadataFilter: bool
 
 class Query(BaseModel):
-    text: str
+    text_variations: dict[QueryTextVariation, str]
     options: QueryOptions
     filter_values: ActivityMetadata
 

@@ -1,18 +1,21 @@
 from models.query import Query
+from models.retrieval_result import RetrievalResult
 from pipelines.rag_base import RagBase
-from pipelines.services import FusionService
+from pipelines.services import FusionService, QueryPreprocessingService
 
 
 class HybridRag(RagBase):
 
     def execute_pipeline(self, query: Query):
-        query.text = self.__query_preprocessing(query.text)
+        query.text_variations = QueryPreprocessingService.query_preprocessing(query.text_variations)
 
-        vector_results = self.vectorStore.semantic_similarity_search(query)
-        bm25_results = self.vectorStore.bm25_search(query)
+        vector_results: list[RetrievalResult] = self.vectorStore.semantic_similarity_search(query)
+        bm25_results: list[RetrievalResult] = self.vectorStore.bm25_search(query)
 
-        merged_results = FusionService.rrf([vector_results, bm25_results])
+        merged_results: list[RetrievalResult] = FusionService.rrf([vector_results, bm25_results])
 
-        reranked_results = self.rerankService.colbert_rerank(query.text, merged_results, 20)
+        text_contexts: list[list[str]]  = self.rerankService.colbert_rerank(list(query.text_variations.values()), merged_results)
 
-        self.llmService.generate_answer(query.text, reranked_results)
+        for context, query_text in zip(text_contexts, list(query.text_variations.values())):
+            resp = self.llmService.generate_answer(query_text, context)
+            print(resp+"\n")
