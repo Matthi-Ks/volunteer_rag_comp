@@ -2,9 +2,12 @@ from fastapi import APIRouter, HTTPException
 
 from knowledge_bases.knowledge_graph_store import KnowledgeGraphStore
 from knowledge_bases.vector_store import VectorStore
-from models.query import Query, RAGPipeline
+from models.evaluation_result import EvaluationResult
+from models.query import Query
+from models.enums import RagPipeline
 from pipelines.hybrid_rag.hybrid_rag import HybridRag
 from pipelines.services import RerankingService, LLMService
+from evaluation.eval import evaluate
 
 router = APIRouter()
 vector_store = VectorStore()
@@ -19,16 +22,23 @@ hybrid_rag = HybridRag(
         llmService=llm_service
     )
 
+# gets a query object containing question versions as well as query options
 @router.post("/search")
 async def search(query: Query):
     try:
-        responses = []
-        if query.options.pipeline == RAGPipeline.HYBRID:
-            responses = hybrid_rag.execute_pipeline(query)
+        eval_result: list[EvaluationResult] = []
+        if query.options.pipeline == RagPipeline.HYBRID:
+            eval_result = await evaluate(query, hybrid_rag)
+        elif query.options.pipeline == RagPipeline.FUSION:
+            print("fusion")
+        elif query.options.pipeline == RagPipeline.GRAPH:
+            print("graph")
+        else:
+            print("unknown pipeline")
 
         return {
             "status": "success",
-            "results": responses
+            "results": eval_result
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

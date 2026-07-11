@@ -1,7 +1,7 @@
 from pydantic import BaseModel
 from transformers.image_transforms import to_pil_image
 
-from models.query import QueryTextVariation
+from models.enums import QuestionVariant
 
 
 class ResultScore(BaseModel):
@@ -12,11 +12,11 @@ class ResultScore(BaseModel):
 class RetrievalResult(BaseModel):
     id: str
     text: str
-    origin_variation: QueryTextVariation
+    origin_variation: QuestionVariant
     scores: ResultScore
 
     @staticmethod
-    def from_chroma_results(chromadb_results, variations: list[QueryTextVariation]) -> list["RetrievalResult"]:
+    def from_chroma_results(chromadb_results, variations: list[QuestionVariant]) -> list["RetrievalResult"]:
         mapped: list[RetrievalResult] = []
 
         for i, variation in enumerate(variations):
@@ -35,7 +35,7 @@ class RetrievalResult(BaseModel):
         return mapped
 
     @staticmethod
-    def from_bm25_results(bm25_results, variations: list[QueryTextVariation]) -> list["RetrievalResult"]:
+    def from_bm25_results(bm25_results, variations: list[QuestionVariant]) -> list["RetrievalResult"]:
         mapped: list[RetrievalResult] = []
 
         for i, variation in enumerate(variations):

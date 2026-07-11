@@ -3,9 +3,10 @@ import os
 
 import pandas as pd
 
+from models.enums import InformationTier
 from util.config_loader import load_config
 from util.metadata_extraction import extract_metadata
-from models.activity import ActivityMetadata, Activity, TextVariations
+from models.activity import ActivityMetadata, Activity
 
 TITLE_ONLY_TEXT_TEMPLATE = "The activity {title} is looking for a volunteer."
 TITLE_SOFTSKILL_TEXT_TEMPLATE = "The activity {title} is looking for a volunteer possessing these skills: {skills}."
@@ -36,18 +37,27 @@ class PreProcessingUtility:
 
             activity = Activity(
                 id=str(row.task_id),
-                text_variations=TextVariations(
-                    title_only=TITLE_ONLY_TEXT_TEMPLATE.format(title=row.title),
-                    title_softskill=TITLE_SOFTSKILL_TEXT_TEMPLATE.format(title=row.title, skills=formated_skills),
-                    title_desc=TITLE_DESC_TEXT_TEMPLATE.format(title=row.title, description=row.description),
-                    title_desc_softskill=TITLE_DESC_SOFTSKILL_TEXT_TEMPLATE.format(title=row.title,
-                                                                                   description=row.description,
-                                                                                   skills=formated_skills)
-                ),
+                text_variations={
+                    InformationTier.TITLE_ONLY: TITLE_ONLY_TEXT_TEMPLATE.format(
+                        title=row.title
+                    ),
+                    InformationTier.TITLE_SOFTSKILL: TITLE_SOFTSKILL_TEXT_TEMPLATE.format(
+                        title=row.title,
+                        skills=formated_skills,
+                    ),
+                    InformationTier.TITLE_DESC: TITLE_DESC_TEXT_TEMPLATE.format(
+                        title=row.title,
+                        description=row.description,
+                    ),
+                    InformationTier.TITLE_DESC_SOFTSKILL: TITLE_DESC_SOFTSKILL_TEXT_TEMPLATE.format(
+                        title=row.title,
+                        description=row.description,
+                        skills=formated_skills,
+                    ),
+                },
                 metadata=extr_metadata,
                 soft_skills=formated_skills.split(",")
             )
-
             activities.append(activity)
 
         self.__save_as_json(activities)

@@ -1,6 +1,8 @@
 from typing import Optional
 from pydantic import BaseModel, Field
 
+from models.enums import InformationTier
+
 
 class ActivityMetadata(BaseModel):
     location: str = Field(
@@ -25,14 +27,8 @@ class ActivityMetadata(BaseModel):
 
         return flat_metadata
 
-class TextVariations(BaseModel):
-    title_only: str
-    title_softskill: str
-    title_desc: str
-    title_desc_softskill: str
-
 class Activity(BaseModel):
     id: str
-    text_variations: TextVariations
+    text_variations: dict[InformationTier, str]
     soft_skills: list[str]
     metadata: ActivityMetadata

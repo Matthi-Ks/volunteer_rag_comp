@@ -3,6 +3,8 @@ import chromadb
 
 from chromadb.types import Collection
 from rank_bm25 import BM25Okapi
+
+from models.enums import InformationTier
 from models.query import Query
 from models.retrieval_result import RetrievalResult
 from util.config_loader import load_config
@@ -19,18 +21,18 @@ class VectorStore:
         self.db_client = chromadb.PersistentClient(config["paths"]["vectordb"])
 
         # create collections
-        # it is required that the collectons name match text variation names in activity class
+        # it is required that the collectons name match information tier names in activity class
         self.collection_names = [
-            "title_only", # activity title only
-            "title_softskill", # activity title only with associated softskills
-            "title_desc", # all activty cols
-            "title_desc_softskill" # all activity cols with associated softskills
+            InformationTier.TITLE_ONLY,
+            InformationTier.TITLE_SOFTSKILL,
+            InformationTier.TITLE_DESC,
+            InformationTier.TITLE_DESC_SOFTSKILL,
         ]
 
         self.collections = {}
         for name in self.collection_names:
             self.collections[name]: Collection = self.db_client.get_or_create_collection(
-                name=name,
+                name=name.value,
                 embedding_function=get_embedding_function()
             )
 
@@ -45,7 +47,7 @@ class VectorStore:
             for name in self.collection_names:
                 metadata[name].append(activity.metadata.to_chromadb_metadata())
                 ids[name].append(activity.id)
-                documents[name].append(getattr(activity.text_variations, name)) # assuming that the collectons name match text variation names
+                documents[name].append(activity.text_variations.get(name)) # assuming that the collectons name match text variation names
 
         for name in self.collection_names:
             if documents[name]:
@@ -69,18 +71,18 @@ class VectorStore:
     # use semantic search only (dense embeddings)
     def semantic_similarity_search(self, query: Query, n: int = 10) -> list[RetrievalResult]:
         filter = query.filter_values if query.options.useMetadataFilter else None
-        results = self.collections[query.options.informationTier.value].query(
-            query_texts=list(query.text_variations.values()),
+        results = self.collections[query.options.informationTier].query(
+            query_texts=list(query.text_variants.values()),
             where=filter,
             n_results=n
         )
 
-        return RetrievalResult.from_chroma_results(results, list(query.text_variations.keys()))
+        return RetrievalResult.from_chroma_results(results, list(query.text_variants.keys()))
 
     # use BM25 algorithm for keyword search
     def bm25_search(self, query: Query, n: int = 10) -> list[RetrievalResult]:
         filter = query.filter_values if query.options.useMetadataFilter else None
-        all_docs = self.collections[query.options.informationTier.value].get(
+        all_docs = self.collections[query.options.informationTier].get(
             include=["documents"],
             where=filter
         )
@@ -89,7 +91,7 @@ class VectorStore:
         bm25 = BM25Okapi(tokenized_docs)
 
         bm25_results = []
-        for query_text in list(query.text_variations.values()):
+        for query_text in list(query.text_variants.values()):
             tokenized_query = query_text.split()
             scores = bm25.get_scores(tokenized_query)
             top_indices = sorted(range(len(scores)), key=lambda i: scores[i], reverse=True)[:n]
@@ -103,7 +105,7 @@ class VectorStore:
 
             bm25_results.append(variation_res)
 
-        return RetrievalResult.from_bm25_results(bm25_results, list(query.text_variations.keys()))
+        return RetrievalResult.from_bm25_results(bm25_results, list(query.text_variants.keys()))
 
 
 

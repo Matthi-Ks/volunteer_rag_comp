@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 
+from models.pipeline_result import PipelineResult
 from models.query import Query
 
 
@@ -10,8 +11,8 @@ class RagBase(ABC):
         self.rerankService = rerankService
         self.llmService = llmService
 
-
+    # takes a query object and generates an answer for each question variant
     @abstractmethod
-    def execute_pipeline(self, query: Query):
+    def execute_pipeline(self, query: Query) -> list[PipelineResult]:
         pass
 

@@ -1,7 +1,7 @@
 from pylate import models, rank
 from ollama import Client
 
-from models.query import QueryTextVariation
+from models.enums import QuestionVariant
 from models.retrieval_result import RetrievalResult
 from util.config_loader import load_config
 
@@ -10,7 +10,7 @@ config = load_config()
 class QueryPreprocessingService:
     # strip input text of unwanted symbols and formating
     @staticmethod
-    def query_preprocessing(variations: dict[QueryTextVariation,str]) -> dict[QueryTextVariation,str]:
+    def query_preprocessing(variations: dict[QuestionVariant,str]) -> dict[QuestionVariant,str]:
         # todo maybe implement regex to only allow a-zA-Z0-9
         for key in variations.keys():
             variations[key] = " ".join(variations[key].lower().strip().split())
@@ -52,9 +52,9 @@ class RerankingService:
 
         doc_texts: list[list[str]] = [[],[],[]]
         for doc in retrieved_res:
-            if doc.origin_variation == QueryTextVariation.NORMAL:
+            if doc.origin_variation == QuestionVariant.NORMAL:
                 doc_texts[0].append(doc.text)
-            elif doc.origin_variation == QueryTextVariation.ABSTRACT:
+            elif doc.origin_variation == QuestionVariant.ABSTRACT:
                 doc_texts[1].append(doc.text)
             else:
                 doc_texts[2].append(doc.text)
