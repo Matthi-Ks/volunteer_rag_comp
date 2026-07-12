@@ -1,7 +1,10 @@
+import json
+
 from pylate import models, rank
 from ollama import Client
 
-from models.enums import QuestionVariant
+from models.enums import QuestionVariant, InformationTier
+from models.query import FusionRAGResponse
 from models.retrieval_result import RetrievalResult
 from util.config_loader import load_config
 
@@ -131,3 +134,55 @@ Answer:"""
         )
 
         return response
+
+    def reformulate_query_texts(self, text_variants: dict[QuestionVariant, str]) -> list[dict[QuestionVariant, str]]:
+        formatted_input = json.dumps({k.name if hasattr(k, 'name') else str(k): v for k, v in text_variants.items()},
+                                     indent=2)
+
+        prompt = (
+            f"You are an AI assistant tasked with generating alternative formulations for a Multi-Query / Fusion RAG system.\n"
+            f"You will receive a JSON object containing different question variants.\n"
+            f"Your job is to generate 3 alternative variations for EACH variant provided, capturing different synonyms and phrasings.\n\n"
+            f"Input Variants:\n{formatted_input}\n\n"
+            f"Instructions:\n"
+            f"1. Create a list containing 3 dictionaries in total.\n"
+            f"2. The FIRST dictionary in the list MUST contain the exact original queries you received as input.\n"
+            f"3. The following 2 dictionaries must contain the newly generated alternative phrasings.\n"
+            f"4. Keep the exact same keys (QuestionVariant names) in every dictionary.\n\n"
+            f"Output MUST strictly follow this JSON schema:\n"
+            f"{{ 'packets': [ "
+            f"  {{ 'normal': 'original...', 'abstract': 'original...', 'detailed': 'original...' }}, "
+            f"  {{ 'normal': 'alt 1...', 'abstract': 'alt 1...', 'detailed': 'alt 1...' }}, "
+            f"  {{ 'normal': 'alt 2...', 'abstract': 'alt 2...', 'detailed': 'alt 2...' }}, "
+            f"  {{ 'normal': 'alt 3...', 'abstract': 'alt 3...', 'detailed': 'alt 3...' }} "
+            f"] }}"
+        )
+
+        response = self.client.chat(
+            model=config["ollama"]["model"],
+            messages=[
+                {"role": "system",
+                 "content": "You are a precise RAG automation assistant that outputs ONLY valid JSON matching the schema without any conversational text."},
+                {"role": "user", "content": prompt}
+            ],
+            format=FusionRAGResponse.model_json_schema()
+        )
+
+        try:
+            response_content = response.get('message', {}).get('content', '{}')
+            parsed_json = json.loads(response_content)
+            packets = parsed_json.get("packets", [])
+
+            cleaned_packets = [
+                {k.lower(): v for k, v in packet.items()}
+                for packet in packets
+            ]
+
+            if cleaned_packets:
+                return cleaned_packets
+
+        except (json.JSONDecodeError, KeyError) as e:
+            print(f"Error parsing bulk Fusion RAG response from Ollama: {e}")
+
+        # fallback: original list
+        return [text_variants]

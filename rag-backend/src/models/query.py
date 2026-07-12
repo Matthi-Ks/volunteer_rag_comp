@@ -13,4 +13,10 @@ class Query(BaseModel):
     options: QueryOptions
     filter_values: ActivityMetadata | None
 
+class QueryPacket(BaseModel):
+    variants: dict[QuestionVariant, str]
+
+class FusionRAGResponse(BaseModel):
+    packets: list[dict[QuestionVariant, str]]
+
 
