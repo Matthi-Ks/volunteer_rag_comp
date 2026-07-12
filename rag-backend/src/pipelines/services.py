@@ -41,14 +41,20 @@ class FusionService:
 
 class RerankingService:
     def __init__(self):
-        self.model = models.ColBERT(
-            model_name_or_path="lightonai/GTE-ModernColBERT-v1",
-            cache_folder=config["paths"]["HFcache"]
-        )
+        self._colbert_model = None
+
+    @property
+    def colbert_model(self):
+        if self._colbert_model is None:
+            self._colbert_model = models.ColBERT(
+                model_name_or_path="lightonai/GTE-ModernColBERT-v1",
+                cache_folder=config["paths"]["HFcache"]
+            )
+        return self._colbert_model
 
     # handles more than one query if necessary
     def colbert_rerank(self, query_texts: list[str], retrieved_res: list[RetrievalResult], n_final: int = 10) -> list[list[str]]:
-        queries_embeddings = self.model.encode(query_texts, is_query=True)
+        queries_embeddings = self.colbert_model.encode(query_texts, is_query=True)
 
         doc_texts: list[list[str]] = [[],[],[]]
         for doc in retrieved_res:
@@ -62,7 +68,7 @@ class RerankingService:
         doc_embeddings = []
         for set in doc_texts:
             if set:
-                embeddings = self.model.encode(set, is_query=False)
+                embeddings = self.colbert_model.encode(set, is_query=False)
                 doc_embeddings.append(embeddings)
             else:
                 print("something is wrong")

@@ -28,4 +28,4 @@ keep_data: true
 keep_vectordb: true
 
 # determines if knowledge graph is reused or newly built
-keep_knowledge_graph: false
+keep_knowledge_graph: true

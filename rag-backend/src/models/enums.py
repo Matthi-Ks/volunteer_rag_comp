@@ -11,7 +11,6 @@ class RagPipeline(Enum):
     GRAPH = "graph"
     FUSION = "fusion"
 
-
 class QuestionVariant(Enum):
     NORMAL = "normal"
     ABSTRACT = "abstract"

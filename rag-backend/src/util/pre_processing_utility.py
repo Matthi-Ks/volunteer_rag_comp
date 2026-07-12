@@ -28,10 +28,10 @@ class PreProcessingUtility:
         except Exception as e:
             raise RuntimeError(f"Error parsing .csv file: {e}")
 
-    # build sencences/text snippets from csv rows
+    # build sentences/text snippets from csv rows
     def process_data(self) -> list[Activity]:
         activities = []
-        for row in self.df.itertuples():
+        for row in self.df.head(20).itertuples():
             formated_skills = str(row.transversalSkillList).replace("'", '').replace("[", '').replace("]", '')
             extr_metadata: ActivityMetadata = extract_metadata(row.description)
 
@@ -64,7 +64,7 @@ class PreProcessingUtility:
         return activities
 
     def __save_as_json(self, data: list[Activity]):
-        serialized_data = [activity.model_dump() for activity in data]
+        serialized_data = [activity.model_dump(mode="json") for activity in data]
 
         with open(self.json_path, "w", encoding="utf-8") as f:
             json.dump(serialized_data, f, indent=4, ensure_ascii=False)

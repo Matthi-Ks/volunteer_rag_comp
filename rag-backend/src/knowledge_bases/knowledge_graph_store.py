@@ -3,6 +3,8 @@ import os
 
 import networkx as nx
 import matplotlib.pyplot as plt
+
+from models.enums import InformationTier
 from util.config_loader import load_config
 from models.activity import Activity
 
@@ -21,13 +23,13 @@ class KnowledgeGraphStore:
         # build graphs with skills and locations as separate nodes
         for activity in data:
             self.title_graph.add_node(activity.id, type="Activity",
-                                      text=activity.text_variations.title_only,
+                                      text=activity.text_variations.get(InformationTier.TITLE_ONLY),
                                       embedding="",  # create embeddings if wanted
                                       startTime=activity.metadata.starting_date,
                                       endTime=activity.metadata.end_date)
 
             self.title_desc_graph.add_node(activity.id, type="Activity",
-                                      text=activity.text_variations.title_desc,
+                                      text=activity.text_variations.get(InformationTier.TITLE_DESC),
                                       embedding="",  # create embeddings if wanted
                                       startTime=activity.metadata.starting_date,
                                       endTime=activity.metadata.end_date)

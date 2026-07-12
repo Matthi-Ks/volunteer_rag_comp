@@ -1,5 +1,4 @@
 import uvicorn
-from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -10,7 +9,6 @@ from util.pre_processing_utility import PreProcessingUtility
 from endpoints.rest import router
 
 config = load_config()
-load_dotenv()
 
 def run_indexing():
     vector_store = VectorStore()
