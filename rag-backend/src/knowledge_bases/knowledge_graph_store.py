@@ -73,10 +73,10 @@ class KnowledgeGraphStore:
             raise FileNotFoundError(f"File not found: {self.title_desc_graph_path}")
 
         with open(self.title_graph_path, "r") as f:
-            self.title_graph = nx.node_link_graph(json.load(f), edges="links", create_using=nx.MultiDiGraph)
+            self.title_graph = nx.node_link_graph(json.load(f), edges="links")
 
         with open(self.title_desc_graph_path, "r") as f:
-            self.title_desc_graph = nx.node_link_graph(json.load(f), edges="links", create_using=nx.MultiDiGraph)
+            self.title_desc_graph = nx.node_link_graph(json.load(f), edges="links")
 
 
     # ai generated

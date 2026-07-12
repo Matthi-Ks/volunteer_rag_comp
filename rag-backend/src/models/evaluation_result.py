@@ -8,3 +8,6 @@ class EvaluationResult(BaseModel):
     question_variant: QuestionVariant
     faithfulness: float
     answer_relevance: float
+    token_count: int
+    context_recall: float
+    context_precision: float

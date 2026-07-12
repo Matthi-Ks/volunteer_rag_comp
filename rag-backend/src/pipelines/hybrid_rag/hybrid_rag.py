@@ -20,10 +20,12 @@ class HybridRag(RagBase):
         responses: list[PipelineResult] = []
         for context, (questionVariant, query_text) in zip(text_contexts, query.text_variants.items()):
             resp = self.llmService.generate_answer(query_text, context)
+            total_tokens = resp.get('prompt_eval_count', 0) + resp.get('eval_count', 0)
             responses.append(PipelineResult(
                 used_context=context,
-                model_response=resp,
-                questionVariant=questionVariant
+                model_response=resp.response,
+                questionVariant=questionVariant,
+                tokens_used=total_tokens
             ))
 
         return responses

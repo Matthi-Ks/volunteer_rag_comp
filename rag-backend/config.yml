@@ -29,3 +29,7 @@ keep_vectordb: true
 
 # determines if knowledge graph is reused or newly built
 keep_knowledge_graph: true
+
+# determines if local mistral LLM is used for evaluation or a larger LLM per API call
+# api not working currently
+use_local_eval_llm: true

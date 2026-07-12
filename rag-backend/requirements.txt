@@ -13,6 +13,7 @@ pylate
 # --- API & Server ---
 fastapi
 uvicorn
+ragas
 
 # --- LLM Clients (Hier sind die kritischen Fixes!) ---
 mistralai<2.0.0
