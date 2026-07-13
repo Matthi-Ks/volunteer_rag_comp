@@ -2,3 +2,5 @@
 /rag-backend/src/resources/vectordb/
 /rag-backend/src/resources/knowledge_graph/
 /rag-backend/src/resources/HF_cache/
+.venv
+__pycache__

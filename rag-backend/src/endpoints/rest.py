@@ -4,7 +4,7 @@ from knowledge_bases.knowledge_graph_store import KnowledgeGraphStore
 from knowledge_bases.vector_store import VectorStore
 from models.evaluation_result import EvaluationResult
 from models.query import Query
-from models.enums import RagPipeline
+from models.enums import RagPipeline, QuestionVariant
 from pipelines.fusion_rag.fusion_rag import FusionRag
 from pipelines.hybrid_rag.hybrid_rag import HybridRag
 from pipelines.services import RerankingService, LLMService
@@ -51,9 +51,18 @@ async def search(query: Query):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@router.get("/hello")
-async def hello():
-    return {
-        "status": "success",
-        "msg": "Hello"
-    }
+@router.post("/test")
+async def test(query: Query):
+    try:
+        print(query)
+        return [EvaluationResult(
+                token_count=100,
+                context_recall=1.0,
+                context_precision=0.7,
+                faithfulness=0.7,
+                answer_relevance=0.6,
+                answer="Test answer",
+                question_variant=QuestionVariant.NORMAL
+            )]
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))

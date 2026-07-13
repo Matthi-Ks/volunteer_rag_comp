@@ -1,23 +1,26 @@
 [ 
-    {
+    {   
+        "id": 1,
         "reference_answer": "",
-        "variations" : {
+        "text_variants" : {
             "normal": "I want to help a social or welfare project in fundraising and administrative tasks in [location] during [timeframe].",
             "abstract": "What options exist for supporting welfare organizations with financial development or office duties around [location] within [timeframe]",
             "detailed": "I am looking for a meaningful part-time volunteer role where I can utilize my organizational and social skills. I can commit a few hours per week in [location] starting [timeframe] to help manage things behind the scenes"
         }
     },
     {
+        "id": 2,
         "reference_answer": "",
-        "variations" : {
+        "text_variants" : {
             "normal": "Are there any volunteer opportunities at a food pantry to pack and unload groceries for seniors in [location] for [timeframe]?",
             "abstract": "Where can I find local food distribution or senior nutrition assistance programs that need manual support in [location] during [timeframe]?",
             "detailed": "I am looking to get some light exercise while helping the community, like packaging and unpackaging food or helping at a pantry. Ideally in [location] for [timeframe] where I can make new friends while doing practical hands-on work."
         }
     },
     {
+        "id": 3,
         "reference_answer": "",
-        "variations" : {
+        "text_variants" : {
             "normal": "I am looking for a patient companion or telephone visiting volunteer position in [location] for [timeframe].",
             "abstract": "What specialized emotional support volunteer roles are open in the palliative care sector in [location] during [timeframe]?",
             "detailed": "I want to offer comfort and presence to homebound, isolated older adults or families dealing with a terminal diagnosis. I read that many clients cannot have in-home visitors but would highly benefit from just one reassurance phone call per week from someone who values what they have to say. So I want to join a compassionate hospice group or bereavement team in [location] over [timeframe]."
