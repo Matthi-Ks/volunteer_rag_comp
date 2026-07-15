@@ -18,5 +18,3 @@ class QueryPacket(BaseModel):
 
 class FusionRAGResponse(BaseModel):
     packets: list[dict[QuestionVariant, str]]
-
-

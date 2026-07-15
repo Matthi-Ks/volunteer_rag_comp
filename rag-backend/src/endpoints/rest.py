@@ -44,11 +44,9 @@ async def search(query: Query):
         else:
             print("unknown pipeline")
 
-        return {
-            "status": "success",
-            "results": eval_result
-        }
+        return eval_result
     except Exception as e:
+        print(e)
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.post("/test")

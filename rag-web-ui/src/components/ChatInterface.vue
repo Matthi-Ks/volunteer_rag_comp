@@ -5,7 +5,7 @@ import QueryWheelPicker from './QueryWheelPicker.vue'; // Import der neuen Kompo
 import { QueryManager } from '@/ts/query_store.ts';
 import predefQueries from '../resources/query.json'
 import type { EvaluationResult } from '@/types/evaluationResult.ts';
-import type { Query, ActivityMetadata, RawQueryJson } from '@/types/query.ts';
+import type { Query, QueryOptions, RawQueryJson } from '@/types/query.ts';
 import { mock_api_call, search_and_evaluate } from '@/ts/rest.ts';
 import { InformationTier, QuestionVariant, RagPipeline } from '@/types/enums.ts';
 
@@ -16,6 +16,14 @@ interface PickerItem {
    parentQuery: RawQueryJson;
 }
 
+const props = defineProps<{
+   queryOptions: QueryOptions;
+}>();
+
+const emit = defineEmits<{
+   (e: 'received', value: EvaluationResult[]): void;
+}>();
+
 const qm: QueryManager = new QueryManager();
 qm.loadFromJson(predefQueries)
 
@@ -25,8 +33,8 @@ const locations = ['Sacramento, California', 'California', 'Remote'];
 
 const timeframes = [
    { label: 'As soon as possible', starting_date: 'As soon as possible', end_date: null },
-   { label: 'Summer', starting_date: '2026-06-01', end_date: '2026-08-31' },
-   { label: 'Winter', starting_date: '2026-12-01', end_date: '2027-02-28' }
+   { label: 'Summer', starting_date: 'May', end_date: 'September' },
+   { label: 'Winter', starting_date: 'Oktober', end_date: 'April' }
 ];
 
 const selectedLocation = ref<string>('');
@@ -87,11 +95,7 @@ const sendQuery = async () => {
 
    const queryPayload: Query = {
       text_variants: formattedTextVariants,
-      options: {
-         informationTier: InformationTier.TITLE_ONLY,
-         pipeline: RagPipeline.HYBRID,
-         useMetadataFilter: false,
-      },
+      options: props.queryOptions,
       filter_values: {
          location: selectedLocation.value,
          starting_date: selectedTimeframe.value!.starting_date,
@@ -109,7 +113,7 @@ const sendQuery = async () => {
 
    try {
       // todo change to real api
-      const response: EvaluationResult[] = await mock_api_call(queryPayload);
+      const response: EvaluationResult[] = await search_and_evaluate(queryPayload);
 
       const matchingResult = response.find(res => res.question_variant === selectedItem.variantType) || response[0];
 
@@ -119,6 +123,8 @@ const sendQuery = async () => {
          text: matchingResult ? `${matchingResult.answer}` : "No matching response for this variant.",
          results: response
       });
+
+      emit("received", response);
 
    } catch (error: any) {
       chatHistory.value.push({

@@ -12,7 +12,6 @@ export class QueryManager {
 
   public flatten(): Record<QuestionVariant, string>[] {
     return this.queries.map(query => {
-      // Wir extrahieren nur die text_variants und ignorieren Metadaten wie IDs
       return { ...query.text_variants };
     });
   }

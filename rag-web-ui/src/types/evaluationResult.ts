@@ -9,4 +9,3 @@ export interface EvaluationResult {
     context_recall: number
     context_precision: number
 }
-
