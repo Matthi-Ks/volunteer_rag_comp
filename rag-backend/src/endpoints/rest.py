@@ -7,27 +7,20 @@ from models.query import Query
 from models.enums import RagPipeline, QuestionVariant
 from pipelines.fusion_rag.fusion_rag import FusionRag
 from pipelines.hybrid_rag.hybrid_rag import HybridRag
-from pipelines.services import RerankingService, LLMService
 from evaluation.eval import evaluate
 
 router = APIRouter()
 vector_store = VectorStore()
 kg_store = KnowledgeGraphStore()
-rerank_service = RerankingService()
-llm_service = LLMService()
 
 hybrid_rag = HybridRag(
     vectorStore=vector_store,
-    kg_store=kg_store,
-    rerankService=rerank_service,
-    llmService=llm_service
+    kg_store=kg_store
 )
 
 fusion_rag = FusionRag(
     vectorStore=vector_store,
-    kg_store=kg_store,
-    rerankService=rerank_service,
-    llmService=llm_service
+    kg_store=kg_store
 )
 
 # gets a query object containing question versions as well as query options

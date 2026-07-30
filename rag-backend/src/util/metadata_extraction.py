@@ -1,22 +1,17 @@
-import instructor
-
 from util.config_loader import load_config
 from models.activity import ActivityMetadata
+from util.llm_factory import LLMFactory
 
 config = load_config()
-
-client = instructor.from_provider(
-    "ollama/"+config["ollama"]["model"],
-    base_url=config["ollama"]["url"],
-    mode=instructor.Mode.JSON,
-)
-
 
 def extract_metadata(desc: str) -> ActivityMetadata:
     prompt = f"Extract the location and time related metadata from the following text:\n\n{desc}"
 
+    client = LLMFactory.get_instructor_wrapping()
+    model_name = config["ollama"]["model"] if config["use_local_llm"] else config["mistral"]["model"]
+
     response = client.chat.completions.create(
-        model = config["ollama"]["model"],
+        model = model_name,
         messages = [
             {
                 "role": "system",

@@ -1,7 +1,16 @@
+import sys
+import types
+
+fake_vertex_module = types.ModuleType("langchain_community.chat_models.vertexai")
+
+class ChatVertexAI:
+    pass
+
+fake_vertex_module.ChatVertexAI = ChatVertexAI
+sys.modules["langchain_community.chat_models.vertexai"] = fake_vertex_module
+
 import uvicorn
-from fastapi import Request, FastAPI
-from fastapi.exceptions import RequestValidationError
-from fastapi.responses import JSONResponse
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from knowledge_bases.knowledge_graph_store import KnowledgeGraphStore
@@ -49,16 +58,6 @@ def create_app() -> FastAPI:
     return app
 
 app = create_app()
-
-@app.exception_handler(RequestValidationError)
-async def validation_exception_handler(request: Request, exc: RequestValidationError):
-    print("--- DETAILED VALIDATION ERROR ---")
-    print(exc.errors())
-    print("---------------------------------")
-    return JSONResponse(
-        status_code=422,
-        content={"detail": exc.errors()},
-    )
 
 def main():
     if config["mode"] == "indexing":

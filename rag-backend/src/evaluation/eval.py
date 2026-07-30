@@ -2,20 +2,10 @@ import os
 import sys
 import types
 
-fake_vertex_module = types.ModuleType("langchain_community.chat_models.vertexai")
-
-class ChatVertexAI:
-    pass
-
-fake_vertex_module.ChatVertexAI = ChatVertexAI
-sys.modules["langchain_community.chat_models.vertexai"] = fake_vertex_module
-
+from util.llm_factory import LLMFactory
 from dotenv import load_dotenv
-from openai import AsyncOpenAI
 from ragas import experiment
 from ragas.metrics.collections import Faithfulness, AnswerRelevancy, ContextRecall, ContextPrecision
-from ragas.llms import llm_factory
-from ragas.embeddings.base import embedding_factory
 
 from models.evaluation_result import EvaluationResult
 from models.query import Query
@@ -25,27 +15,11 @@ from util.config_loader import load_config
 config = load_config()
 load_dotenv()
 
-client = AsyncOpenAI(
-    api_key="ollama",
-    base_url="http://localhost:11434/v1"
-)
-
-mistral_api_client = AsyncOpenAI(
-    api_key=os.getenv("MISTRAL_API_KEY"),
-    base_url="https://api.mistral.ai/v1"
-)
-
-local_llm = llm_factory(config["ollama"]["model"], provider="openai", client=client)
-local_llm.is_async = True
-
-api_llm = llm_factory("mistral-large-latest", provider="openai", client=mistral_api_client)
-api_llm.is_async = True
-
-embeddings = embedding_factory(model="mistral-embed", provider="openai", client=mistral_api_client)
-
 @experiment()
 async def evaluate(query: Query, pipeline: RagBase) -> list[EvaluationResult]:
-    llm_in_use = local_llm if config["use_local_eval_llm"] else mistral_api_client
+    llm_in_use = LLMFactory.get_ragas_llm()
+    embeddings = LLMFactory.get_ragas_embedding_fn()
+
     answers = pipeline.execute_pipeline(query)
 
     faithfulness_scorer = Faithfulness(llm=llm_in_use)

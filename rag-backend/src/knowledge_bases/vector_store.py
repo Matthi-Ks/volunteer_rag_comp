@@ -13,7 +13,6 @@ from util.embedding_function import get_embedding_function
 
 config = load_config()
 
-# todo look into using Enums for collection names
 class VectorStore:
     def __init__(self):
         os.makedirs(config["paths"]["vectordb"], exist_ok=True)
@@ -70,7 +69,7 @@ class VectorStore:
 
     # use semantic search only (dense embeddings)
     def semantic_similarity_search(self, query: Query, n: int = 10) -> list[RetrievalResult]:
-        filter = query.filter_values if query.options.useMetadataFilter else None
+        filter = query.filter_values.model_dump() if query.options.useMetadataFilter else None
         results = self.collections[query.options.informationTier].query(
             query_texts=list(query.text_variants.values()),
             where=filter,
@@ -81,7 +80,7 @@ class VectorStore:
 
     # use BM25 algorithm for keyword search
     def bm25_search(self, query: Query, n: int = 10) -> list[RetrievalResult]:
-        filter = query.filter_values if query.options.useMetadataFilter else None
+        filter = query.filter_values.model_dump() if query.options.useMetadataFilter else None
         all_docs = self.collections[query.options.informationTier].get(
             include=["documents"],
             where=filter
