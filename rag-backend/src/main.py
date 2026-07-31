@@ -37,8 +37,7 @@ def run_indexing():
         kg_store.build_graphs(processed_data)
         # plot graph
         # knowledgeGraph.plot_graph(knowledgeGraph.title_graph)
-    else:
-        kg_store.load_graphs()
+
 
 def create_app() -> FastAPI:
     app = FastAPI(

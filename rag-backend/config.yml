@@ -28,10 +28,10 @@ paths:
 mode: "rag"
 
 # determines if preprocessed data is reused or newly built
-keep_data: true
+keep_data: false
 
 # determines if vectordb is reused or newly built
-keep_vectordb: true
+keep_vectordb: false
 
 # determines if knowledge graph is reused or newly built
 keep_knowledge_graph: true

@@ -7,7 +7,7 @@ import predefQueries from '../resources/query.json'
 import type { EvaluationResult } from '@/types/evaluationResult.ts';
 import type { Query, QueryOptions, RawQueryJson } from '@/types/query.ts';
 import { mock_api_call, search_and_evaluate } from '@/ts/rest.ts';
-import { InformationTier, QuestionVariant, RagPipeline } from '@/types/enums.ts';
+import { InformationTier, QuestionVariant, RagPipeline, Region, TimeFrame } from '@/types/enums.ts';
 
 interface PickerItem {
    rawTextTemplate: string
@@ -29,29 +29,25 @@ qm.loadFromJson(predefQueries)
 
 const rawQueries = qm.getAllQueries();
 
-const locations = ['Sacramento, California', 'California', 'Remote'];
+const regionOptions = Object.entries(Region).map(([key, label]) => ({
+  enumKey: key as keyof typeof Region,
+  enumValue: label as Region,
+}));
 
-const timeframes = [
-   { label: 'As soon as possible', starting_date: 'As soon as possible', end_date: null },
-   { label: 'Summer', starting_date: 'May', end_date: 'September' },
-   { label: 'Winter', starting_date: 'Oktober', end_date: 'April' }
-];
+const timeframeOptions = Object.entries(TimeFrame).map(([key, label]) => ({
+  enumKey: key as keyof typeof TimeFrame,
+  enumValue: label as TimeFrame,
+}));
 
-const selectedLocation = ref<string>('');
-const selectedTimeframeIndex = ref<number | null>(null);
+const selectedRegion = ref<Region>(Region.REMOTE);
+const selectedTimeframe = ref<TimeFrame>(TimeFrame.ASAP);
 
-const selectedTimeframe = computed(() => 
-   selectedTimeframeIndex.value !== null ? timeframes[selectedTimeframeIndex.value] : null
-);
-
-const isSelectionComplete = computed(() => 
-   selectedLocation.value !== '' && selectedTimeframe.value !== null
-);
+const isSelectionComplete = computed(() => selectedRegion.value !== null);
 
 const formatQueryText = (text: string): string => {
    if (!text) return '';
-   const loc = selectedLocation.value || '[location]';
-   const tf = selectedTimeframe.value?.label || '[timeframe]';
+   const loc = selectedRegion.value || '[location]';
+   const tf = selectedTimeframe.value || '[timeframe]';
 
    return text
       .replace(/\[location\]/gi, loc)
@@ -97,9 +93,8 @@ const sendQuery = async () => {
       text_variants: formattedTextVariants,
       options: props.queryOptions,
       filter_values: {
-         location: selectedLocation.value,
-         starting_date: selectedTimeframe.value!.starting_date,
-         end_date: selectedTimeframe.value!.end_date
+         region: selectedRegion.value,
+         timeFrame: selectedTimeframe.value
       }
    };
 
@@ -162,19 +157,19 @@ const sendQuery = async () => {
 
                <div class="relative flex items-center bg-slate-100 border border-slate-200 rounded-xl px-3 py-2 shadow-md">
                   <MapPin class="w-4 h-4 text-slate-400 mr-2 shrink-0" />
-                  <select v-model="selectedLocation" 
+                  <select v-model="selectedRegion" 
                      class="w-full bg-transparent border-none outline-none text-xs text-slate-600 font-medium cursor-pointer">
                      <option value="" disabled selected>Select Location...</option>
-                     <option v-for="loc in locations" :key="loc" :value="loc">{{ loc }}</option>
+                     <option v-for="loc in regionOptions" :key="loc.enumKey" :value="loc.enumValue">{{ loc.enumValue }}</option>
                   </select>
                </div>
 
                <div class="relative flex items-center bg-slate-100 border border-slate-200 rounded-xl px-3 py-2 shadow-md">
                   <Calendar class="w-4 h-4 text-slate-400 mr-2 shrink-0" />
-                  <select v-model="selectedTimeframeIndex" 
+                  <select v-model="selectedTimeframe" 
                      class="w-full bg-transparent border-none outline-none text-xs text-slate-600 font-medium cursor-pointer">
                      <option :value="null" disabled selected>Select Timeframe...</option>
-                     <option v-for="(tf, idx) in timeframes" :key="idx" :value="idx">{{ tf.label }}</option>
+                     <option v-for="tf in timeframeOptions" :key="tf.enumKey" :value="tf.enumValue">{{ tf.enumValue }}</option>
                   </select>
                </div>
             </div>

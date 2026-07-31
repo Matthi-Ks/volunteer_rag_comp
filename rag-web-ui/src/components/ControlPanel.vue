@@ -15,9 +15,13 @@ const useHardFilter = ref<boolean>(true);
 
 const queryOptions = computed<QueryOptions>(() => ({
    pipeline: selectedPipeline.value,
-   informationTier: useTitleOnly.value 
-      ? (useESCOData.value ? InformationTier.TITLE_ONLY: InformationTier.TITLE_SOFTSKILL) 
-      : (useESCOData.value ? InformationTier.TITLE_SOFTSKILL: InformationTier.TITLE_DESC_SOFTSKILL),
+   informationTier: useHardFilter.value
+      ? (useTitleOnly.value 
+            ? (useESCOData.value ? InformationTier.MaT_TITLE_ONLY : InformationTier.MaT_TITLE_SOFTSKILL)
+            : (useESCOData.value ? InformationTier.MaT_TITLE_DESC : InformationTier.MaT_TITLE_DESC_SOFTSKILL))
+      : (useTitleOnly.value 
+            ? (useESCOData.value ? InformationTier.TITLE_ONLY : InformationTier.TITLE_SOFTSKILL)
+            : (useESCOData.value ? InformationTier.TITLE_DESC : InformationTier.TITLE_DESC_SOFTSKILL)),
    useMetadataFilter: useHardFilter.value
 }));
 

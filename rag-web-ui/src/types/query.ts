@@ -1,4 +1,4 @@
-import type { InformationTier, QuestionVariant, RagPipeline } from "./enums";
+import type { InformationTier, QuestionVariant, RagPipeline, Region, TimeFrame } from "./enums";
 
 export interface Query {
     text_variants: Record<QuestionVariant, string>
@@ -19,7 +19,6 @@ export interface RawQueryJson {
 }
 
 export interface ActivityMetadata {
-    location: string,
-    starting_date: string,
-    end_date: string | null
+    region: Region,
+    timeFrame: TimeFrame
 }

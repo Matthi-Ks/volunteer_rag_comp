@@ -1,19 +1,28 @@
-from typing import Optional
+from enum import Enum
+from typing import Optional, Any
 from pydantic import BaseModel, Field
 
 from models.enums import InformationTier
 
+class Region(str, Enum):
+    NORCAL = "Northern California"
+    SOCAL = "Southern California"
+    OUT_OF_STATE = "Outside California"
+    REMOTE = "Remote"
+
+class StartTimeframe(str, Enum):
+    ASAP = "As soon as possible"
+    SUMMER = "Starting during summer"
+    WINTER = "Starting during winter"
 
 class ActivityMetadata(BaseModel):
-    location: str = Field(
-        description="The city, country, or specific location of the organization. If remote or not mentioned, set to 'Remote'."
+    region: Region = Field(
+        default=Region.REMOTE,
+        description="Categorize the primary region where the activity takes place. Northern CA includes Sacramento, Bay Area, etc."
     )
-    starting_date: str = Field(
-        description="The starting date or timeframe. If not mentioned, strictly set to 'As soon as possible'."
-    )
-    end_date: Optional[str] = Field(
-        default=None,
-        description="The end date of the activity if mentioned, otherwise None."
+    timeframe: StartTimeframe = Field(
+        default=StartTimeframe.ASAP,
+        description="Categorize the starting timeframe for the activity that falls either in the summer half of the year or the winter half."
     )
 
     def to_chromadb_metadata(self):
@@ -26,6 +35,22 @@ class ActivityMetadata(BaseModel):
                 flat_metadata[key] = value
 
         return flat_metadata
+
+    def to_where_condition(self) -> Optional[dict[str, Any]]:
+        data = self.model_dump()
+        conditions = []
+
+        for key, value in data.items():
+            if value is not None and value != "":
+                conditions.append({key: {"$eq": value}})
+
+        if not conditions:
+            return None
+
+        if len(conditions) == 1:
+            return conditions[0]
+
+        return {"$and": conditions}
 
 class Activity(BaseModel):
     id: str

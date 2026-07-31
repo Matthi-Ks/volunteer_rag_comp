@@ -11,7 +11,7 @@ from pipelines.services.result_fusion_service import ResultFusionService
 class HybridRag(RagBase):
 
     def execute_pipeline(self, query: Query) -> list[PipelineResult]:
-        query.text_variants = QueryPreprocessingService.query_preprocessing(query.text_variants)
+        query = QueryPreprocessingService.query_preprocessing(query)
 
         vector_results: list[RetrievalResult] = self.vectorStore.semantic_similarity_search(query)
         bm25_results: list[RetrievalResult] = self.vectorStore.bm25_search(query)

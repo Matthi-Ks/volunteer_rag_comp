@@ -21,12 +21,7 @@ class VectorStore:
 
         # create collections
         # it is required that the collectons name match information tier names in activity class
-        self.collection_names = [
-            InformationTier.TITLE_ONLY,
-            InformationTier.TITLE_SOFTSKILL,
-            InformationTier.TITLE_DESC,
-            InformationTier.TITLE_DESC_SOFTSKILL,
-        ]
+        self.collection_names = list(InformationTier)
 
         self.collections = {}
         for name in self.collection_names:
@@ -69,10 +64,8 @@ class VectorStore:
 
     # use semantic search only (dense embeddings)
     def semantic_similarity_search(self, query: Query, n: int = 10) -> list[RetrievalResult]:
-        filter = query.filter_values.model_dump() if query.options.useMetadataFilter else None
         results = self.collections[query.options.informationTier].query(
             query_texts=list(query.text_variants.values()),
-            where=filter,
             n_results=n
         )
 
@@ -80,10 +73,8 @@ class VectorStore:
 
     # use BM25 algorithm for keyword search
     def bm25_search(self, query: Query, n: int = 10) -> list[RetrievalResult]:
-        filter = query.filter_values.model_dump() if query.options.useMetadataFilter else None
         all_docs = self.collections[query.options.informationTier].get(
             include=["documents"],
-            where=filter
         )
 
         tokenized_docs = [doc.lower().split() for doc in all_docs["documents"]]

@@ -8,11 +8,20 @@ from util.config_loader import load_config
 from util.metadata_extraction import extract_metadata
 from models.activity import ActivityMetadata, Activity
 
-TITLE_ONLY_TEXT_TEMPLATE = "The activity {title} is looking for a volunteer."
-TITLE_SOFTSKILL_TEXT_TEMPLATE = "The activity {title} is looking for a volunteer possessing these skills: {skills}."
-TITLE_DESC_TEXT_TEMPLATE = "The activity {title}, described by: {description}, is looking for a volunteer."
-TITLE_DESC_SOFTSKILL_TEXT_TEMPLATE = ("The activity {title}, described by: {description}, "
-                                      "is looking for a volunteer possessing these skills: {skills}.")
+TIER_TEMPLATES = {
+    InformationTier.TITLE_ONLY: "The activity {title} is looking for a volunteer.",
+    InformationTier.TITLE_SOFTSKILL: "The activity {title} is looking for a volunteer possessing these skills: {skills}.",
+    InformationTier.TITLE_DESC: "The activity {title}, described by: {description}, is looking for a volunteer.",
+    InformationTier.TITLE_DESC_SOFTSKILL: ("The activity {title}, described by: {description}, "
+                                      "is looking for a volunteer possessing these skills: {skills}."),
+    InformationTier.MaT_TITLE_ONLY: "{mat_prefix}\nThe activity {title} is looking for a volunteer.",
+    InformationTier.MaT_TITLE_SOFTSKILL: "{mat_prefix}\nThe activity {title} is looking for a volunteer possessing these skills: {skills}.",
+    InformationTier.MaT_TITLE_DESC: "{mat_prefix}\nThe activity {title}, described by: {description}, is looking for a volunteer.",
+    InformationTier.MaT_TITLE_DESC_SOFTSKILL: ("{mat_prefix}\nThe activity {title}, described by: {description}, "
+                                      "is looking for a volunteer possessing these skills: {skills}."),
+}
+
+MaT_PREFIX_TEMPLATE = "Metadata: [Region: {region}] [Timeframe: {timeframe}]"
 
 config = load_config()
 
@@ -32,31 +41,25 @@ class PreProcessingUtility:
     def process_data(self) -> list[Activity]:
         activities = []
         for row in self.df.head(20).itertuples():
-            formated_skills = str(row.transversalSkillList).replace("'", '').replace("[", '').replace("]", '')
+            formatted_skills = str(row.transversalSkillList).replace("'", '').replace("[", '').replace("]", '')
             extr_metadata: ActivityMetadata = extract_metadata(row.description)
 
             activity = Activity(
                 id=str(row.task_id),
                 text_variations={
-                    InformationTier.TITLE_ONLY: TITLE_ONLY_TEXT_TEMPLATE.format(
-                        title=row.title
-                    ),
-                    InformationTier.TITLE_SOFTSKILL: TITLE_SOFTSKILL_TEXT_TEMPLATE.format(
-                        title=row.title,
-                        skills=formated_skills,
-                    ),
-                    InformationTier.TITLE_DESC: TITLE_DESC_TEXT_TEMPLATE.format(
+                    tier: template.format(
+                        mat_prefix=MaT_PREFIX_TEMPLATE.format(
+                            region=extr_metadata.region,
+                            timeframe=extr_metadata.timeframe
+                        ),
                         title=row.title,
                         description=row.description,
-                    ),
-                    InformationTier.TITLE_DESC_SOFTSKILL: TITLE_DESC_SOFTSKILL_TEXT_TEMPLATE.format(
-                        title=row.title,
-                        description=row.description,
-                        skills=formated_skills,
-                    ),
+                        skills=formatted_skills
+                    )
+                    for tier, template in TIER_TEMPLATES.items()
                 },
                 metadata=extr_metadata,
-                soft_skills=formated_skills.split(",")
+                soft_skills=formatted_skills.split(",")
             )
             activities.append(activity)
 
