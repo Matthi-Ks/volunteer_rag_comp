@@ -55,7 +55,7 @@ class LLMService:
         ]
 
     @classmethod
-    def reformulate_query_texts(cls, text_variants: dict[QuestionVariant, str]) -> FusionRAGResponse:
+    def reformulate_query_texts(cls, text_variants: dict[QuestionVariant, str]) -> (FusionRAGResponse, int):
         client = LLMFactory.get_instructor_wrapping()
         model_name = config["ollama"]["model"] if config["use_local_llm"] else config["mistral"]["model"]
 
@@ -78,7 +78,7 @@ class LLMService:
                 """
 
         try:
-            structured_response: FusionRAGResponse = client.chat.completions.create(
+            structured_response, raw_output = client.chat.completions.create_with_completion(
                 model=model_name,
                 response_model=FusionRAGResponse,
                 messages=[
@@ -88,11 +88,15 @@ class LLMService:
                 max_retries=2
             )
 
-            return structured_response
+            total_tokens = 0
+            if raw_output.usage:
+                total_tokens = raw_output.usage.total_tokens
+
+            return structured_response, total_tokens
 
         except Exception as e:
             logger.error(f"Failed to generate query reformulations via Instructor: {e}")
-            return [{k.name.lower() if hasattr(k, "name") else str(k).lower(): v for k, v in text_variants.items()}]
+            return [{k.name.lower() if hasattr(k, "name") else str(k).lower(): v for k, v in text_variants.items()}], 0
 
 
 

@@ -4,21 +4,24 @@ from models.query import Query
 from models.retrieval_result import RetrievalResult
 from pipelines.rag_base import RagBase
 from pipelines.services.llm_service import LLMService
+from pipelines.services.query_preprocessing_service import QueryPreprocessingService
 from pipelines.services.reranking_service import RerankingService
 from pipelines.services.result_fusion_service import ResultFusionService
 
 
 class FusionRag(RagBase):
 
-    #todo query reformulation and retrieval
     def execute_pipeline(self, query: Query) -> list[PipelineResult]:
         query_cpy = query.__deepcopy__()
         # todo include in token count
-        reformulated_query_texts: FusionRAGResponse = LLMService.reformulate_query_texts(query.text_variants)
+        ref_resp = LLMService.reformulate_query_texts(query.text_variants)
+        reformulated_query_texts: FusionRAGResponse = ref_resp[0]
+        ref_tokens = ref_resp[1]
 
         retrieval_result_set = []
         for variants in reformulated_query_texts:
             query_cpy.text_variants = variants
+            query_cpy = QueryPreprocessingService.query_preprocessing(query_cpy)
             vector_results: list[RetrievalResult] = self.vectorStore.semantic_similarity_search(query_cpy, n=5)
             retrieval_result_set.append(vector_results)
 
@@ -33,7 +36,7 @@ class FusionRag(RagBase):
                 used_context=context,
                 model_response=resp[0],
                 questionVariant=questionVariant,
-                tokens_used=resp[1]
+                tokens_used=resp[1]+ref_tokens
             ))
 
         return responses
