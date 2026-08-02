@@ -1,10 +1,40 @@
-{
-   "profile_id": 1,
-   "preferences": {
-      "locaiton": "",
-      "dislikes": [],
-      "timeframe": ""
-   },
-   "esco_labels": [],
-   "biography": "" 
-}
+[
+  {
+    "id": 1,
+    "esco_skills": [
+      "teach housekeeping skills",
+      "maintain inventory of cleaning supplies",
+      "educate on the prevention of illness",
+      "manage volunteers in second-hand shop",
+      "guarantee customer satisfaction",
+      "provide social counselling"
+    ],
+    "biography": "I am a retired hospitality manager looking to offer his time to community outreach programs and local shelters. With a broad background in venue operations and personal care, I am eager to mentor young adults and assist with everyday facility needs. I enjoy working directly with people and keeping community spaces organized and welcoming."
+  },
+  {
+    "id": 2,
+    "esco_skills": [
+      "conduct research on flora",
+      "adopt ways to foster biodiversity and animal welfare",
+      "cultivate crops for biomass",
+      "empathise with outdoor groups",
+      "first aid for animals",
+      "perform street interventions in social work",
+      "show initiative",
+      "carry out event management"
+    ],
+    "biography": "I am an active outdoor enthusiast and environmental advocate seeking a dynamic volunteering role. I balance a passion for plant and animal care with strong interpersonal skills gained from organizing public community events. I am looking to join a local conservation initiative that also engages directly with the public."
+  },
+  {
+    "id": 3,
+    "esco_skills": [
+      "develop energy saving concepts",
+      "perform a feasibility study for building management systems",
+      "install heat pump",
+      "propose ICT solutions to business problems",
+      "Agile project management",
+      "create solutions to problems"
+    ],
+    "biography": "I am a versatile technical consultant looking to help non-profit organizations modernize their facilities and digital workflows. I enjoy troubleshooting complex operational challenges, whether that involves smart building systems or general IT setup. I want to dedicate my weekends to non-profits aiming to lower costs and boost efficiency."
+  }
+]

@@ -39,9 +39,9 @@ class VectorStore:
 
         for activity in data:
             for name in self.collection_names:
-                metadata[name].append(activity.metadata.to_chromadb_metadata())
+                metadata[name].append({"esco_skills": activity.soft_skills})
                 ids[name].append(activity.id)
-                documents[name].append(activity.text_variations.get(name)) # assuming that the collectons name match text variation names
+                documents[name].append(activity.text_variations.get(name)) # assuming that the collections name match text variation names
 
         for name in self.collection_names:
             if documents[name]:
@@ -74,7 +74,7 @@ class VectorStore:
     # use BM25 algorithm for keyword search
     def bm25_search(self, query: Query, n: int = 10) -> list[RetrievalResult]:
         all_docs = self.collections[query.options.informationTier].get(
-            include=["documents"],
+            include=['documents','metadatas'],
         )
 
         tokenized_docs = [doc.lower().split() for doc in all_docs["documents"]]
@@ -82,7 +82,7 @@ class VectorStore:
 
         bm25_results = []
         for query_text in list(query.text_variants.values()):
-            tokenized_query = query_text.split()
+            tokenized_query = query_text.lower().split()
             scores = bm25.get_scores(tokenized_query)
             top_indices = sorted(range(len(scores)), key=lambda i: scores[i], reverse=True)[:n]
 
@@ -91,7 +91,8 @@ class VectorStore:
                 doc_id = all_docs['ids'][idx]
                 doc_text = all_docs['documents'][idx]
                 score = scores[idx]
-                variation_res.append((doc_id, doc_text, score))
+                skills = all_docs['metadatas'][idx].get('esco_skills', [])
+                variation_res.append((doc_id, doc_text, score, skills))
 
             bm25_results.append(variation_res)
 

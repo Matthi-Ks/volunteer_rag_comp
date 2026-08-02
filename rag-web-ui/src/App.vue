@@ -1,20 +1,25 @@
 <script setup lang="ts">
 import { ref } from 'vue';
-import ChatInterface from './components/ChatInterface.vue';
+import ChatInterface from './components/chatInterface/ChatInterface.vue';
 import ControlPanel from './components/ControlPanel.vue';
 import MetricsPanel from './components/metricsPanel/MetricsPanel.vue';
 import ProfileSelector from './components/ProfileSelector.vue';
 import type { QueryOptions } from './types/query.ts';
 import { InformationTier, RagPipeline } from './types/enums.ts';
 import type { EvaluationResult } from './types/evaluationResult.ts';
+import type Profile from './types/profile.ts';
+import profilesData from './resources/profile.json';
 
 const activeOptions = ref<QueryOptions>({
     pipeline: RagPipeline.HYBRID,
-    informationTier: InformationTier.TITLE_ONLY,
-    useMetadataFilter: true
+    informationTier: InformationTier.MaT_TITLE_DESC,
+    useMetadataFilter: true,
+    useESCOSkills: false
 });
 
 const receivedResults = ref<EvaluationResult[] | null>(null)
+
+const selectedProfile = ref<Profile>(profilesData[0] as Profile)
 
 const handleOptionsUpdate = (options: QueryOptions) => {
    activeOptions.value = options;
@@ -24,15 +29,18 @@ const handleRecevedResults = (results: EvaluationResult[]) => {
     receivedResults.value = results;
 }
 
+const handleProfileSelection = (profile: Profile) => {
+    selectedProfile.value = profile
+};
 </script>
 
 <template>
   <div class="flex h-screen w-screen overflow-hidden font-sans">
     <aside class="w-64 flex flex-col border-r border-slate-300">
-      <ProfileSelector></ProfileSelector>
+      <ProfileSelector @select-profile="handleProfileSelection"></ProfileSelector>
     </aside>
     <main class="flex-1 flex flex-col justify-between relative bg-slate-100">
-      <ChatInterface :query-options="activeOptions" @received="handleRecevedResults" />
+      <ChatInterface :selected-profile="selectedProfile" :query-options="activeOptions" @received="handleRecevedResults" />
     </main>
     <section class="w-80 flex flex-col border-l border-slate-300 overflow-y-auto">
 

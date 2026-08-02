@@ -23,3 +23,36 @@ class ResultFusionService:
                     merged_dict[key] = cloned_result
 
         return sorted(merged_dict.values(), key=lambda x: x.scores.rrf, reverse=True)
+
+    @staticmethod
+    def rrf_with_skill_boost(result_sets: list[list[RetrievalResult]], user_skills: list[str], k: int = 60) -> list[RetrievalResult]:
+        merged_results = ResultFusionService.rrf(result_sets, k=k)
+
+        if not user_skills:
+            return merged_results
+
+        user_skill_set = set(s.lower().strip() for s in user_skills)
+
+        boost_alpha = None
+        if boost_alpha is None:
+            # 50% of the maximum single rank-1 RRF score (1.0 / (60 + 1))
+            boost_alpha = 0.5 * (1.0 / (k + 1))
+
+        for result in merged_results:
+            # Extract doc skills from metadata
+            doc_skills = result.associated_skills
+            if not doc_skills:
+                continue
+
+            doc_skill_set = set(s.lower().strip() for s in doc_skills)
+            if not doc_skill_set:
+                continue
+
+            # Calculate One-Way Coverage Ratio (User Matches / Document Requirements)
+            intersection_count = len(user_skill_set.intersection(doc_skill_set))
+            coverage_ratio = intersection_count / len(doc_skill_set)
+
+            # Boost the existing RRF score in-place on the cloned result
+            result.scores.rrf += boost_alpha * coverage_ratio
+
+        return sorted(merged_results, key=lambda x: x.scores.rrf, reverse=True)

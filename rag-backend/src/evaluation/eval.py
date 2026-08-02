@@ -62,7 +62,9 @@ async def evaluate(query: Query, pipeline: RagBase) -> list[EvaluationResult]:
             answer_relevance=answer_relevancy.value,
             context_recall=context_recall.value,
             context_precision=context_precision.value,
-            token_count=answer.tokens_used
+            token_count=answer.tokens_used,
+            context=contexts,
+            matching_skills=[] #todo
         ))
 
     return eval_results

@@ -10,15 +10,9 @@ from models.activity import ActivityMetadata, Activity
 
 TIER_TEMPLATES = {
     InformationTier.TITLE_ONLY: "The activity {title} is looking for a volunteer.",
-    InformationTier.TITLE_SOFTSKILL: "The activity {title} is looking for a volunteer possessing these skills: {skills}.",
     InformationTier.TITLE_DESC: "The activity {title}, described by: {description}, is looking for a volunteer.",
-    InformationTier.TITLE_DESC_SOFTSKILL: ("The activity {title}, described by: {description}, "
-                                      "is looking for a volunteer possessing these skills: {skills}."),
     InformationTier.MaT_TITLE_ONLY: "{mat_prefix}\nThe activity {title} is looking for a volunteer.",
-    InformationTier.MaT_TITLE_SOFTSKILL: "{mat_prefix}\nThe activity {title} is looking for a volunteer possessing these skills: {skills}.",
     InformationTier.MaT_TITLE_DESC: "{mat_prefix}\nThe activity {title}, described by: {description}, is looking for a volunteer.",
-    InformationTier.MaT_TITLE_DESC_SOFTSKILL: ("{mat_prefix}\nThe activity {title}, described by: {description}, "
-                                      "is looking for a volunteer possessing these skills: {skills}."),
 }
 
 MaT_PREFIX_TEMPLATE = "Metadata: [Region: {region}] [Timeframe: {timeframe}]"
@@ -41,7 +35,9 @@ class PreProcessingUtility:
     def process_data(self) -> list[Activity]:
         activities = []
         for row in self.df.head(20).itertuples():
-            formatted_skills = str(row.transversalSkillList).replace("'", '').replace("[", '').replace("]", '')
+            formatted_skills = [
+                skill.strip()
+                for skill in str(row.transversalSkillList).replace("'", '').replace("[", '').replace("]", '').split(",")]
             extr_metadata: ActivityMetadata = extract_metadata(row.description)
 
             activity = Activity(
@@ -54,12 +50,11 @@ class PreProcessingUtility:
                         ),
                         title=row.title,
                         description=row.description,
-                        skills=formatted_skills
                     )
                     for tier, template in TIER_TEMPLATES.items()
                 },
                 metadata=extr_metadata,
-                soft_skills=formatted_skills.split(",")
+                soft_skills=formatted_skills
             )
             activities.append(activity)
 

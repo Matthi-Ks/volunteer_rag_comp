@@ -14,6 +14,7 @@ class RetrievalResult(BaseModel):
     text: str
     origin_variation: QuestionVariant
     scores: ResultScore
+    associated_skills: list[str]
 
     @staticmethod
     def from_chroma_results(chromadb_results, variations: list[QuestionVariant]) -> list["RetrievalResult"]:
@@ -29,7 +30,8 @@ class RetrievalResult(BaseModel):
                         vector_dist=chromadb_results['distances'][i][j],
                         bm25_score=None,
                         rrf=None
-                    )
+                    ),
+                    associated_skills=chromadb_results['metadatas'][i][j].get("esco_skills", [])
                 ))
 
         return mapped
@@ -39,7 +41,7 @@ class RetrievalResult(BaseModel):
         mapped: list[RetrievalResult] = []
 
         for i, variation in enumerate(variations):
-            for doc_id, doc_text, score in bm25_results[i]:
+            for doc_id, doc_text, score, skills in bm25_results[i]:
                 mapped.append(RetrievalResult(
                     id=doc_id,
                     text=doc_text,
@@ -48,7 +50,8 @@ class RetrievalResult(BaseModel):
                         vector_dist=None,
                         bm25_score=score,
                         rrf=None
-                    )
+                    ),
+                    associated_skills=skills
                 ))
 
         return mapped

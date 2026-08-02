@@ -11,3 +11,5 @@ class EvaluationResult(BaseModel):
     token_count: int
     context_recall: float
     context_precision: float
+    context: list[str]
+    matching_skills: list[str]

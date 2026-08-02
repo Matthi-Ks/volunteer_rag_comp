@@ -16,7 +16,7 @@ class HybridRag(RagBase):
         vector_results: list[RetrievalResult] = self.vectorStore.semantic_similarity_search(query)
         bm25_results: list[RetrievalResult] = self.vectorStore.bm25_search(query)
 
-        merged_results: list[RetrievalResult] = ResultFusionService.rrf([vector_results, bm25_results])
+        merged_results: list[RetrievalResult] = ResultFusionService.rrf_with_skill_boost([vector_results, bm25_results], query.profile.esco_skills)
 
         text_contexts: list[list[str]]  = RerankingService.colbert_rerank(list(query.text_variants.values()), merged_results, n_final=3)
 

@@ -1,6 +1,8 @@
 import type { InformationTier, QuestionVariant, RagPipeline, Region, TimeFrame } from "./enums";
+import type Profile from "./profile";
 
 export interface Query {
+    profile: Profile,
     text_variants: Record<QuestionVariant, string>
     options: QueryOptions
     filter_values: ActivityMetadata
@@ -10,6 +12,7 @@ export interface QueryOptions {
     informationTier: InformationTier;
     pipeline: RagPipeline;
     useMetadataFilter: boolean;
+    useESCOSkills: boolean;
 }
 
 export interface RawQueryJson {
