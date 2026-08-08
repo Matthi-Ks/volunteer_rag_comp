@@ -12,6 +12,7 @@ class QueryOptions(BaseModel):
 
 class Query(BaseModel):
     profile: Profile
+    query_id: int
     text_variants: dict[QuestionVariant, str]
     options: QueryOptions
     filter_values: ActivityMetadata | None

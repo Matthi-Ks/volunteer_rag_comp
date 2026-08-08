@@ -1,6 +1,4 @@
-import os
-import sys
-import types
+import json
 
 from util.llm_factory import LLMFactory
 from dotenv import load_dotenv
@@ -15,6 +13,9 @@ from util.config_loader import load_config
 config = load_config()
 load_dotenv()
 
+with open(config["paths"]["reference_answers"], "r", encoding="utf-8") as f:
+    REFERENCE_DATA = json.load(f)
+
 @experiment()
 async def evaluate(query: Query, pipeline: RagBase) -> list[EvaluationResult]:
     llm_in_use = LLMFactory.get_ragas_llm()
@@ -26,6 +27,12 @@ async def evaluate(query: Query, pipeline: RagBase) -> list[EvaluationResult]:
     answer_relevancy_scorer = AnswerRelevancy(llm=llm_in_use, embeddings=embeddings)
     context_recall_scorer = ContextRecall(llm=llm_in_use)
     context_precision_scorer = ContextPrecision(llm=llm_in_use)
+
+    reference_text = get_reference_answer(
+        region=query.filter_values.region,
+        timeframe=query.filter_values.timeframe,
+        question_id=query.query_id
+    )
 
     eval_results: list[EvaluationResult] = []
     for answer in answers:
@@ -46,13 +53,13 @@ async def evaluate(query: Query, pipeline: RagBase) -> list[EvaluationResult]:
         context_recall = await context_recall_scorer.ascore(
             user_input=user_input_text,
             retrieved_contexts=contexts,
-            reference="Administrative Tasks"
+            reference=reference_text
         )
 
         context_precision = await context_precision_scorer.ascore(
             user_input=user_input_text,
             retrieved_contexts=contexts,
-            reference="Administrative Tasks"
+            reference=reference_text
         )
 
         eval_results.append(EvaluationResult(
@@ -70,3 +77,16 @@ async def evaluate(query: Query, pipeline: RagBase) -> list[EvaluationResult]:
     return eval_results
 
 
+def get_reference_answer(region: str, timeframe: str, question_id: int) -> str:
+    """
+    Finds and joins all textual ground truth answers for a given region, timeframe, and question ID.
+    """
+    for entry in REFERENCE_DATA:
+        if entry.get("region") == region and entry.get("timeframe") == timeframe:
+            for q in entry.get("answers_per_question", []):
+                if q.get("id") == question_id:
+                    # Join multiple reference answers into a single string for RAGAS
+                    answers = q.get("answers", [])
+                    return "\n\n".join(answers) if answers else "no information found"
+
+    return "no information found"

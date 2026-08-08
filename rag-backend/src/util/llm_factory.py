@@ -1,4 +1,6 @@
 import os
+
+import httpx
 import instructor
 
 from mistralai import Mistral

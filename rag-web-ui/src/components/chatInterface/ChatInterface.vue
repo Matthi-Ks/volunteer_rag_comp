@@ -103,6 +103,7 @@ const sendQuery = async () => {
 
    const queryPayload: Query = {
       profile: props.selectedProfile,
+      query_id: activeRawQuery.id,
       text_variants: formattedTextVariants,
       options: props.queryOptions,
       filter_values: {

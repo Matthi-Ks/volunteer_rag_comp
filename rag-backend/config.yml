@@ -7,7 +7,7 @@ ollama:
 
 # mistral api
 mistral:
-  model: "mistral-medium-latest"
+  model: "mistral-small-2603"
   embed: "mistral-embed"
   api_key_env: "MISTRAL_API_KEY"
 
@@ -20,6 +20,7 @@ paths:
   vectordb: "resources/vectordb"
   knowledge_graph: "resources/knowledge_graph"
   HFcache: "resources/HF_cache"
+  reference_answers: "resources/datasets/reference_answers.json"
 
 # determines which part of the application gets run
 # indexing -> starts indexing phase

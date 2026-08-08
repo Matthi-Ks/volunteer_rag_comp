@@ -19,8 +19,12 @@ GEN_SYSTEM_PROMPT = (
         "1. Be brief; provide only a short description.\n"
         "2. Limit your answer to a maximum of 2-3 sentences or bullet points.\n"
         "3. Do not assume, extrapolate, or bring in outside knowledge.\n"
-        "4. If the context does not contain the answer, say 'Information not found.' and nothing else.\n"
+        "4. If the context does not contain a matching answer, say 'Information not found.'.\n"
         "5. Use no special characters or special formatting."
+    )
+
+GEN_SYSTEM_PROMPT_2 = (
+        "You are a concise assistant. Answer the user's question using ONLY the provided context.\n"
     )
 
 class LLMService:
@@ -50,7 +54,7 @@ class LLMService:
         user_content = f"Context:\n{formatted_context}\n\nQuestion: {query_text}"
 
         return [
-            {"role": "system", "content": GEN_SYSTEM_PROMPT},
+            {"role": "system", "content": GEN_SYSTEM_PROMPT_2},
             {"role": "user", "content": user_content}
         ]
 

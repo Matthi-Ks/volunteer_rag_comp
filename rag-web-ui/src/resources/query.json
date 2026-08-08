@@ -1,7 +1,6 @@
 [ 
     {   
         "id": 1,
-        "reference_answer": "",
         "text_variants" : {
             "normal": "I want to help a social or welfare project in fundraising and administrative tasks in [location] during [timeframe].",
             "abstract": "What options exist for supporting welfare organizations with financial development or office duties around [location] within [timeframe]",
@@ -10,7 +9,6 @@
     },
     {
         "id": 2,
-        "reference_answer": "",
         "text_variants" : {
             "normal": "Are there any volunteer opportunities at a food pantry to pack and unload groceries for seniors in [location] for [timeframe]?",
             "abstract": "Where can I find local food distribution or senior nutrition assistance programs that need manual support in [location] during [timeframe]?",
@@ -19,11 +17,34 @@
     },
     {
         "id": 3,
-        "reference_answer": "",
         "text_variants" : {
             "normal": "I am looking for a patient companion or telephone visiting volunteer position in [location] for [timeframe].",
             "abstract": "What specialized emotional support volunteer roles are open in the palliative care sector in [location] during [timeframe]?",
             "detailed": "I want to offer comfort and presence to homebound, isolated older adults or families dealing with a terminal diagnosis. I read that many clients cannot have in-home visitors but would highly benefit from just one reassurance phone call per week from someone who values what they have to say. So I want to join a compassionate hospice group or bereavement team in [location] over [timeframe]."
         }
+    },
+    {
+        "id": 4,
+        "text_variants": {
+          "normal": "What volunteer positions are available in the Education sector in [location] for [timeframe]?",
+          "abstract": "Find all educational support, tutoring, and student mentorship opportunities around [location] within [timeframe].",
+          "detailed": "I am looking for any opportunities related to education, teaching, or mentoring students. I am open to working with any amount of students, adults, or low-income youth in [location] starting [timeframe]."
     }
+    },
+    {
+        "id": 5,
+        "text_variants": {
+          "normal": "Are there any health, senior care, or hospice volunteer opportunities in [location] during [timeframe]?",
+          "abstract": "List healthcare-related, senior living, and palliative care volunteer roles available in [location] within [timeframe].",
+          "detailed": "I want to contribute to the health and social care sector. Whether it involves directly visiting hospice patients, supporting senior facilities, or assisting phone outreach teams in [location] during [timeframe]."
+    }
+    },
+    {
+        "id": 6,
+        "text_variants": {
+          "normal": "I am looking for community welfare or non-profit support roles in [location] for [timeframe].",
+          "abstract": "What general non-profit operations, community social work, or fundraising roles exist in [location] within [timeframe]?",
+          "detailed": "I want to help social welfare organizations with their general operations, whether through food distribution, fundraising campaigns, administrative assistance, or community advocacy in [location] during [timeframe]."
+    }
+  }
 ]

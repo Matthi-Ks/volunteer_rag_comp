@@ -3,6 +3,7 @@ import type Profile from "./profile";
 
 export interface Query {
     profile: Profile,
+    query_id: number,
     text_variants: Record<QuestionVariant, string>
     options: QueryOptions
     filter_values: ActivityMetadata
@@ -17,7 +18,6 @@ export interface QueryOptions {
 
 export interface RawQueryJson {
     id: number;
-    reference_answer: string;
     text_variants: Record<QuestionVariant, string>;
 }
 
