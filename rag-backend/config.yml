@@ -11,6 +11,12 @@ mistral:
   embed: "mistral-embed"
   api_key_env: "MISTRAL_API_KEY"
 
+#neo4j
+neo4j:
+  user: "55b73bde"
+  password_env: "neo4j_password"
+  uri: "neo4j+s://55b73bde.databases.neo4j.io"
+
 # file paths used for indexing
 paths:
   # initial csv data
@@ -29,13 +35,13 @@ paths:
 mode: "rag"
 
 # determines if preprocessed data is reused or newly built
-keep_data: false
+keep_data: true
 
 # determines if vectordb is reused or newly built
-keep_vectordb: false
+keep_vectordb: true
 
 # determines if knowledge graph is reused or newly built
-keep_knowledge_graph: true
+keep_knowledge_graph: false
 
 # determines if local mistral LLM is used or a larger LLM per API call
 use_local_llm: false

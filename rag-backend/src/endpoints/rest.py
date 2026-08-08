@@ -1,26 +1,33 @@
 from fastapi import APIRouter, HTTPException
 
+from knowledge_bases.graph_store import GraphStore
 from knowledge_bases.knowledge_graph_store import KnowledgeGraphStore
 from knowledge_bases.vector_store import VectorStore
 from models.evaluation_result import EvaluationResult
 from models.query import Query
 from models.enums import RagPipeline, QuestionVariant
 from pipelines.fusion_rag.fusion_rag import FusionRag
+from pipelines.graph_rag.graph_rag import GraphRag
 from pipelines.hybrid_rag.hybrid_rag import HybridRag
 from evaluation.eval import evaluate
 
 router = APIRouter()
 vector_store = VectorStore()
-kg_store = KnowledgeGraphStore()
+graphStore = GraphStore()
 
 hybrid_rag = HybridRag(
     vectorStore=vector_store,
-    kg_store=kg_store
+    graphStore=graphStore
 )
 
 fusion_rag = FusionRag(
     vectorStore=vector_store,
-    kg_store=kg_store
+    graphStore=graphStore
+)
+
+graph_rag = GraphRag(
+    vectorStore=vector_store,
+    graphStore=graphStore
 )
 
 # gets a query object containing question versions as well as query options
@@ -33,7 +40,7 @@ async def search(query: Query):
         elif query.options.pipeline == RagPipeline.FUSION:
             eval_result = await evaluate(query, fusion_rag)
         elif query.options.pipeline == RagPipeline.GRAPH:
-            print("graph")
+            eval_result = await evaluate(query, graph_rag)
         else:
             print("unknown pipeline")
 

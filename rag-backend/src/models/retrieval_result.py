@@ -55,3 +55,24 @@ class RetrievalResult(BaseModel):
                 ))
 
         return mapped
+
+    @staticmethod
+    def from_neo4j_results(neo4j_results, variations: list[QuestionVariant]) -> list["RetrievalResult"]:
+        mapped: list[RetrievalResult] = []
+
+        for i, variation in enumerate(variations):
+            # neo4j_results[i] contains tuples of (doc_id, doc_text, score, skills) for variations[i]
+            for doc_id, doc_text, score, skills in neo4j_results[i]:
+                mapped.append(RetrievalResult(
+                    id=doc_id,
+                    text=doc_text,
+                    origin_variation=variation,
+                    scores=ResultScore(
+                        vector_dist=score,
+                        bm25_score=None,
+                        rrf=None
+                    ),
+                    associated_skills=skills
+                ))
+
+        return mapped

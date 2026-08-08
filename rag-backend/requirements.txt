@@ -9,6 +9,7 @@ matplotlib
 chromadb>=0.5.0
 rank_bm25
 pylate
+neo4j
 
 # --- API & Server ---
 fastapi

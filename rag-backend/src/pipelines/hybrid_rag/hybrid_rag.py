@@ -7,7 +7,6 @@ from pipelines.services.query_preprocessing_service import QueryPreprocessingSer
 from pipelines.services.reranking_service import RerankingService
 from pipelines.services.result_fusion_service import ResultFusionService
 
-
 class HybridRag(RagBase):
 
     def execute_pipeline(self, query: Query) -> list[PipelineResult]:

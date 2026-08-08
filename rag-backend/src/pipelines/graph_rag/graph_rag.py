@@ -1,8 +1,34 @@
+from models.pipeline_result import PipelineResult
 from models.query import Query
+from models.retrieval_result import RetrievalResult
 from pipelines.rag_base import RagBase
+from pipelines.services.llm_service import LLMService
+from pipelines.services.query_preprocessing_service import QueryPreprocessingService
+from pipelines.services.reranking_service import RerankingService
+from pipelines.services.result_fusion_service import ResultFusionService
 
 
 class GraphRag(RagBase):
 
     def execute_pipeline(self, query: Query):
-        pass
+        query = QueryPreprocessingService.query_preprocessing(query)
+
+        graph_results = self.graphStore.query_graph(query)
+
+        merged_results: list[RetrievalResult] = ResultFusionService.rrf_with_skill_boost([graph_results],
+                                                                                         query.profile.esco_skills)
+
+        text_contexts: list[list[str]] = RerankingService.colbert_rerank(list(query.text_variants.values()),
+                                                                         merged_results, n_final=3)
+
+        responses: list[PipelineResult] = []
+        for context, (questionVariant, query_text) in zip(text_contexts, query.text_variants.items()):
+            resp: (str, int) = LLMService.generate_answer(query_text, context)
+            responses.append(PipelineResult(
+                used_context=context,
+                model_response=resp[0],
+                questionVariant=questionVariant,
+                tokens_used=resp[1]
+            ))
+
+        return responses

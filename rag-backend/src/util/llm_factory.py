@@ -1,6 +1,5 @@
 import os
 
-import httpx
 import instructor
 
 from mistralai import Mistral
@@ -12,7 +11,6 @@ from util.config_loader import load_config
 from ollama import Client as OllamaClient
 
 config = load_config()
-
 
 class LLMFactory:
     @staticmethod
@@ -54,6 +52,24 @@ class LLMFactory:
             provider="openai",
             client=async_mistral_client
         )
+
+    @classmethod
+    def get_embedding_fn(cls):
+        api_key = os.getenv(config["mistral"]["api_key_env"])
+        client = Mistral(api_key=api_key)
+
+        def embed_text(texts: str | list[str]) -> list[float] | list[list[float]]:
+            inputs = [texts] if isinstance(texts, str) else texts
+
+            response = client.embeddings.create(
+                model=config["mistral"]["embed"],
+                inputs=inputs
+            )
+
+            embeddings = [data.embedding for data in response.data]
+            return embeddings[0] if isinstance(texts, str) else embeddings
+
+        return embed_text
 
     @classmethod
     def get_ragas_llm(cls):

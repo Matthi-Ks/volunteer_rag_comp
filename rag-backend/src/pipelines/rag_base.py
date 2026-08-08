@@ -5,9 +5,9 @@ from models.query import Query
 
 
 class RagBase(ABC):
-    def __init__(self, vectorStore, kg_store):
+    def __init__(self, vectorStore, graphStore):
         self.vectorStore = vectorStore
-        self.kg_store = kg_store
+        self.graphStore = graphStore
 
     # takes a query object and generates an answer for each question variant
     @abstractmethod

@@ -13,8 +13,8 @@ import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from knowledge_bases.knowledge_graph_store import KnowledgeGraphStore
 from knowledge_bases.vector_store import VectorStore
+from knowledge_bases.graph_store import GraphStore
 from util.config_loader import load_config
 from util.pre_processing_utility import PreProcessingUtility
 from endpoints.rest import router
@@ -23,7 +23,8 @@ config = load_config()
 
 def run_indexing():
     vector_store = VectorStore()
-    kg_store = KnowledgeGraphStore()
+    graph_store = GraphStore()
+
     data_util = PreProcessingUtility()
     if not config["keep_data"]:
         processed_data = data_util.process_data()
@@ -34,9 +35,8 @@ def run_indexing():
         vector_store.index(processed_data)
 
     if not config["keep_knowledge_graph"]:
-        kg_store.build_graphs(processed_data)
-        # plot graph
-        # knowledgeGraph.plot_graph(knowledgeGraph.title_graph)
+        graph_store.setup_db_indexes()
+        graph_store.indexing(processed_data)
 
 
 def create_app() -> FastAPI:
