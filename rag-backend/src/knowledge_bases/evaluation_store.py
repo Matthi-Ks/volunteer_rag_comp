@@ -36,7 +36,6 @@ class EvaluationStore:
             );
             """)
 
-            # Index for fast grouping during benchmark calculations
             conn.execute("""
             CREATE INDEX IF NOT EXISTS idx_pipeline_config 
             ON evaluation_results (pipeline_type, information_tier, use_metadata_filter, use_esco_skills);
@@ -44,23 +43,27 @@ class EvaluationStore:
             conn.commit()
 
     def _get_connection(self) -> sqlite3.Connection:
-        conn = sqlite3.connect(self.path+"/"+DB_FILE_NAME)
+        conn = sqlite3.connect(os.path.join(self.path, DB_FILE_NAME))
         conn.row_factory = sqlite3.Row
         return conn
 
     def save_evaluation_result(self, result: EvaluationResult, query_options: QueryOptions):
         record_id = str(uuid.uuid4())
+
+        pipeline_val = getattr(query_options.pipeline, "value", query_options.pipeline)
+        tier_val = getattr(query_options.informationTier, "value", query_options.informationTier)
+
         with self._get_connection() as conn:
             conn.execute("""
             INSERT INTO evaluation_results (
                 id, pipeline_type, information_tier, use_metadata_filter, 
                 use_esco_skills, faithfulness, answer_relevancy, 
                 context_precision, context_recall, token_count
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """, (
                 record_id,
-                query_options.pipeline,
-                query_options.informationTier,
+                pipeline_val,
+                tier_val,
                 query_options.useMetadataFilter,
                 query_options.useESCOSkills,
                 result.faithfulness,
@@ -84,7 +87,7 @@ class EvaluationStore:
             ROUND(AVG(answer_relevancy), 4) as avg_answer_relevancy,
             ROUND(AVG(context_precision), 4) as avg_context_precision,
             ROUND(AVG(context_recall), 4) as avg_context_recall,
-            SUM(token_count) as sum_token_count
+            ROUND(AVG(token_count)) as avg_token_count
         FROM evaluation_results
         GROUP BY 
             pipeline_type, 
@@ -109,7 +112,7 @@ class EvaluationStore:
                     avg_answer_relevancy=row["avg_answer_relevancy"],
                     avg_context_precision=row["avg_context_precision"],
                     avg_context_recall=row["avg_context_recall"],
-                    sum_token_count=row["sum_token_count"]
+                    avg_token_count=int(row["avg_token_count"]) if row["avg_token_count"] is not None else 0
                 ) for row in rows
             ]
 

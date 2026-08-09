@@ -13,13 +13,13 @@ class GraphRag(RagBase):
     def execute_pipeline(self, query: Query):
         query = QueryPreprocessingService.query_preprocessing(query)
 
-        graph_results = self.graphStore.query_graph(query)
+        graph_results = self.graphStore.query_graph(query, 10)
 
         merged_results: list[RetrievalResult] = ResultFusionService.rrf_with_skill_boost([graph_results],
                                                                                          query.profile.esco_skills)
 
         text_contexts: list[list[str]] = RerankingService.colbert_rerank(list(query.text_variants.values()),
-                                                                         merged_results, n_final=3)
+                                                                         merged_results, 5)
 
         responses: list[PipelineResult] = []
         for context, (questionVariant, query_text) in zip(text_contexts, query.text_variants.items()):

@@ -22,12 +22,12 @@ class FusionRag(RagBase):
         for variants in reformulated_query_texts:
             query_cpy.text_variants = variants
             query_cpy = QueryPreprocessingService.query_preprocessing(query_cpy)
-            vector_results: list[RetrievalResult] = self.vectorStore.semantic_similarity_search(query_cpy, n=5)
+            vector_results: list[RetrievalResult] = self.vectorStore.semantic_similarity_search(query_cpy, n=10)
             retrieval_result_set.append(vector_results)
 
         merged_results: list[RetrievalResult] = ResultFusionService.rrf(retrieval_result_set)
 
-        text_contexts: list[list[str]] = RerankingService.colbert_rerank(list(query.text_variants.values()), merged_results)
+        text_contexts: list[list[str]] = RerankingService.colbert_rerank(list(query.text_variants.values()), merged_results, 5)
 
         responses: list[PipelineResult] = []
         for context, (questionVariant, query_text) in zip(text_contexts, query.text_variants.items()):

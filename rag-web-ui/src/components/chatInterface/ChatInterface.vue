@@ -39,29 +39,9 @@ const selectedTimeframe = ref<TimeFrame>(TimeFrame.ASAP);
 
 const isSelectionComplete = computed(() => selectedRegion.value !== null);
 
-const wheelPickerItems = computed<PickerItem[]>(() => {
-   const items: PickerItem[] = [];
-   rawQueries.forEach(q => {
-      Object.entries(q.text_variants).forEach(([variantKey, textValue]) => {
-         items.push({
-            rawTextTemplate: textValue,
-            displayText: formatQueryText(textValue),
-            variantType: variantKey as QuestionVariant,
-            parentQuery: q
-         });
-      });
-   });
-   return items;
-});
-
-const predefinedQueriesTextOnly = computed(() => wheelPickerItems.value.filter(item => item.variantType == QuestionVariant.NORMAL).map(item => item.displayText));
-
 const activeQueryIndex = ref(0);
 const chatHistory = ref<ChatMessage[]>([]);
 const isSending = ref(false);
-
-const currentSelectedItem = computed<PickerItem | undefined>(() => wheelPickerItems.value[activeQueryIndex.value]);
-const currentQueryText = computed(() => currentSelectedItem.value?.displayText || '');
 
 const isContextModalOpen = ref(false);
 const usedContexts = ref<string[]>([]);
@@ -72,15 +52,31 @@ const variantOrder: QuestionVariant[] = [
    QuestionVariant.DETAILED
 ];
 
-const formatQueryText = (text: string): string => {
-   if (!text) return '';
+const formattedQueries = computed(() => {
    const loc = selectedRegion.value || '[location]';
    const tf = selectedTimeframe.value || '[timeframe]';
 
-   return text
-      .replace(/\[location\]/gi, loc)
-      .replace(/\[timeframe\]/gi, tf);
-};
+   return rawQueries.map(q => {
+      const formattedVariants: Record<QuestionVariant, string> = {} as Record<QuestionVariant, string>;
+
+      Object.entries(q.text_variants).forEach(([variantKey, textValue]) => {
+         formattedVariants[variantKey as QuestionVariant] = textValue
+            .replace(/\[location\]/gi, loc)
+            .replace(/\[timeframe\]/gi, tf);
+      });
+
+      return {
+         id: q.id,
+         normalDisplayText: formattedVariants[QuestionVariant.NORMAL] || '',
+         formattedVariants,
+         rawQuery: q
+      };
+   })
+});
+
+const wheelPickerTexts = computed(() => formattedQueries.value.map(q => q.normalDisplayText));
+const selectedQueryObj = computed(() => formattedQueries.value[activeQueryIndex.value]);
+const selectedQueryText = computed(() => formattedQueries.value[activeQueryIndex.value]?.normalDisplayText);
 
 const cycleMessageVariant = (msg: ChatMessage, direction: 'prev' | 'next') => {
    const maxIndex = variantOrder.length - 1;
@@ -105,20 +101,13 @@ const cycleMessageVariant = (msg: ChatMessage, direction: 'prev' | 'next') => {
 };
 
 const sendQuery = async () => {
-   const selectedItem = currentSelectedItem.value;
-   if (!isSelectionComplete.value || !selectedItem || isSending.value) return;
+   const selected = selectedQueryObj.value;
+   if (!isSelectionComplete.value || !selected || isSending.value) return;
 
-   const activeRawQuery = selectedItem.parentQuery;
-
-   const formattedTextVariants: Record<QuestionVariant, string> = {} as Record<QuestionVariant, string>;
-   Object.entries(activeRawQuery.text_variants).forEach(([key, val]) => {
-      formattedTextVariants[key as QuestionVariant] = formatQueryText(val);
-   });
-
-   const queryPayload: Query = {
+const queryPayload: Query = {
       profile: props.selectedProfile,
-      query_id: activeRawQuery.id,
-      text_variants: formattedTextVariants,
+      query_id: selected.id,
+      text_variants: selected.formattedVariants,
       options: props.queryOptions,
       filter_values: {
          region: selectedRegion.value,
@@ -129,8 +118,8 @@ const sendQuery = async () => {
    chatHistory.value.push({
       id: Date.now(),
       sender: 'user',
-      text: formattedTextVariants[QuestionVariant.NORMAL] || currentQueryText.value,
-      textVariants: formattedTextVariants,
+      text: selected.normalDisplayText,
+      textVariants: selected.formattedVariants,
       activeVariantIndex: 0
    });
 
@@ -187,7 +176,7 @@ const closeContextModal = () => {
       <div class="p-6 space-y-4">
          <div class="max-w-4xl mx-auto w-full space-y-4">
 
-            <QueryWheelPicker :queries="predefinedQueriesTextOnly" v-model="activeQueryIndex" />
+            <QueryWheelPicker :queries="wheelPickerTexts" v-model="activeQueryIndex" />
 
             <div class="grid grid-cols-2 gap-4">
                <div
@@ -214,7 +203,7 @@ const closeContextModal = () => {
             </div>
 
             <div class="relative flex items-center bg-slate-300 border border-slate-200 rounded-xl px-4 py-3 shadow-xl">
-               <input type="text" :value="currentQueryText" readonly :class="['flex-1 bg-transparent border-none outline-none text-sm font-medium select-none pr-12 truncate py-1',
+               <input type="text" :value="selectedQueryText" readonly :class="['flex-1 bg-transparent border-none outline-none text-sm font-medium select-none pr-12 truncate py-1',
                   isSelectionComplete ? 'text-slate-800' : 'text-slate-400 italic']" />
 
                <button @click="sendQuery" :disabled="!isSelectionComplete || isSending"

@@ -2,7 +2,6 @@ from pydantic import BaseModel
 
 from models.enums import RagPipeline, InformationTier
 
-
 class PipelineSummary(BaseModel):
     pipeline_type: RagPipeline
     information_tier: InformationTier
@@ -13,4 +12,4 @@ class PipelineSummary(BaseModel):
     avg_answer_relevancy: float
     avg_context_precision: float
     avg_context_recall: float
-    sum_token_count: int
+    avg_token_count: int

@@ -43,7 +43,7 @@ async def search(query: Query):
         else:
             raise Exception("Unknown rag pipeline")
 
-        #[eval_store.save_evaluation_result(result, query.options) for result in eval_results]
+        [eval_store.save_evaluation_result(result, query.options) for result in eval_results]
 
         return eval_results
     except Exception as e:

@@ -13,7 +13,7 @@ from util.config_loader import load_config
 config = load_config()
 load_dotenv()
 
-with open(config["paths"]["reference_answers"], "r", encoding="utf-8") as f:
+with open(config["paths"]["reference_contexts"], "r", encoding="utf-8") as f:
     REFERENCE_DATA = json.load(f)
 
 @experiment()
@@ -28,10 +28,11 @@ async def evaluate(query: Query, pipeline: RagBase) -> list[EvaluationResult]:
     context_recall_scorer = ContextRecall(llm=llm_in_use)
     context_precision_scorer = ContextPrecision(llm=llm_in_use)
 
-    reference_text = get_reference_answer(
+    reference_contexts = get_reference_context(
         region=query.filter_values.region,
         timeframe=query.filter_values.timeframe,
-        question_id=query.query_id
+        question_id=query.query_id,
+        information_tier=query.options.informationTier
     )
 
     eval_results: list[EvaluationResult] = []
@@ -50,25 +51,35 @@ async def evaluate(query: Query, pipeline: RagBase) -> list[EvaluationResult]:
             user_input=user_input_text
         )
 
-        context_recall = await context_recall_scorer.ascore(
-            user_input=user_input_text,
-            retrieved_contexts=contexts,
-            reference=reference_text
-        )
+        # If no contexts should exist, precision and recall are  1.0 if retriever pulled nothing, else 0.0
+        if not reference_contexts:
+            context_precision_val = 1.0 if len(contexts) == 0 else 0.0
+            context_recall_val = 1.0 if len(contexts) == 0 else 0.0
+        else:
+            reference_text = "\n\n".join(reference_contexts)
 
-        context_precision = await context_precision_scorer.ascore(
-            user_input=user_input_text,
-            retrieved_contexts=contexts,
-            reference=reference_text
-        )
+            context_recall = await context_recall_scorer.ascore(
+                user_input=user_input_text,
+                retrieved_contexts=contexts,
+                reference=reference_text
+            )
+
+            context_precision = await context_precision_scorer.ascore(
+                user_input=user_input_text,
+                retrieved_contexts=contexts,
+                reference=reference_text
+            )
+
+            context_precision_val = context_precision.value
+            context_recall_val = context_recall.value
 
         eval_results.append(EvaluationResult(
             answer=answer.model_response,
             question_variant=answer.questionVariant,
             faithfulness=faithfulness.value,
             answer_relevance=answer_relevancy.value,
-            context_recall=context_recall.value,
-            context_precision=context_precision.value,
+            context_recall=context_recall_val,
+            context_precision=context_precision_val,
             token_count=answer.tokens_used,
             context=contexts,
             matching_skills=[] #todo
@@ -76,17 +87,15 @@ async def evaluate(query: Query, pipeline: RagBase) -> list[EvaluationResult]:
 
     return eval_results
 
-
-def get_reference_answer(region: str, timeframe: str, question_id: int) -> str:
-    """
-    Finds and joins all textual ground truth answers for a given region, timeframe, and question ID.
-    """
+def get_reference_context(region, timeframe, question_id, information_tier) -> list[str]:
     for entry in REFERENCE_DATA:
-        if entry.get("region") == region and entry.get("timeframe") == timeframe:
-            for q in entry.get("answers_per_question", []):
+        if entry.get("region") == region.name and entry.get("timeframe") == timeframe.name:
+            for q in entry.get("contexts_per_question", []):
                 if q.get("id") == question_id:
-                    # Join multiple reference answers into a single string for RAGAS
-                    answers = q.get("answers", [])
-                    return "\n\n".join(answers) if answers else "no information found"
+                    contexts = []
+                    for elem in q.get("contexts"):
+                        contexts.append(elem.get(information_tier.value))
 
-    return "no information found"
+                    return contexts
+
+    return []
