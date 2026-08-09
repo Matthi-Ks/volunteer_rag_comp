@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { RagPipeline } from '@/types/enums';
+import { RagPipeline } from '@/types/backendTypes';
 import { ref, computed } from 'vue';
 
 const activeTab = ref<RagPipeline>(RagPipeline.HYBRID);

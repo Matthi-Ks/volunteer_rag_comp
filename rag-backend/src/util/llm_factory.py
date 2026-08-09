@@ -84,9 +84,9 @@ class LLMFactory:
             api_key = os.getenv(config["mistral"]["api_key_env"])
             async_client = AsyncOpenAI(
                 api_key=api_key,
-                base_url="https://api.mistral.ai/v1"
+                base_url="https://api.mistral.ai/v1",
             )
-            llm = llm_factory(config["mistral"]["model"], provider="openai", client=async_client)
+            llm = llm_factory(config["mistral"]["model"], provider="openai", client=async_client, max_tokens=4096)
 
         llm.is_async = True
         return llm

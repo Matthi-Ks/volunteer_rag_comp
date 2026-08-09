@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { InformationTier, RagPipeline } from '@/types/enums';
-import type { QueryOptions } from '@/types/query';
+import { RagPipeline, InformationTier } from '@/types/backendTypes';
+import type { QueryOptions } from '@/types/backendTypes';
 import { computed, ref, watch } from 'vue';
 
 

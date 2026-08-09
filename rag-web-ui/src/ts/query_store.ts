@@ -1,5 +1,6 @@
-import type { QuestionVariant } from "@/types/enums";
-import type { RawQueryJson } from "@/types/query";
+import type { QuestionVariant } from "@/types/backendTypes";
+import type { RawQueryJson } from "@/types/webAppTypes";
+
 
 export class QueryManager {
   private queries: RawQueryJson[] = [];

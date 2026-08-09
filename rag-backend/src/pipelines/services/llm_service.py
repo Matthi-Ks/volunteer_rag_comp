@@ -44,8 +44,10 @@ class LLMService:
             client = LLMFactory.get_api_client()
             response = client.chat.complete(
                 model=config["mistral"]["model"],
-                messages=messages
+                messages=messages,
+                max_tokens=1024
             )
+
             return response.choices[0].message.content, response.usage.total_tokens
 
     @classmethod

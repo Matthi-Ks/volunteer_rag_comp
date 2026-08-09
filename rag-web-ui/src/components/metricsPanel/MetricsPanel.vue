@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { EvaluationResult } from '@/types/evaluationResult';
+import type { EvaluationResult } from '@/types/backendTypes.ts';
 import QueryMetricsPanel from './QueryMetricsPanel.vue';
 import PipelineMetricsPanel from './PipelineMetricsPanel.vue';
 

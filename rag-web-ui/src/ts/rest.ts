@@ -1,5 +1,4 @@
-import type { EvaluationResult } from "@/types/evaluationResult";
-import type { Query } from "@/types/query";
+import type { Query, EvaluationResult, PipelineSummary } from "@/types/backendTypes";
 
 const BASE_URL = "http://localhost:8080/api/"
 
@@ -14,7 +13,19 @@ export async function search_and_evaluate(query: Query): Promise<EvaluationResul
         });
         return await handleResponse<EvaluationResult[]>(resp);
     } catch (error: any) {
-        console.error("Error while updating project:", error.message);
+        console.error("Error while fetching answer:", error.message);
+        throw error;
+    }
+}
+
+export async function get_pipeline_summaries() {
+    try {
+        const resp = await fetch(BASE_URL + 'summaries', {
+            method: 'GET'
+        });
+        return await handleResponse<PipelineSummary[]>(resp);
+    } catch (error: any) {
+        console.error("Error while fetching summaries:", error.message);
         throw error;
     }
 }

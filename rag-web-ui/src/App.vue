@@ -4,10 +4,7 @@ import ChatInterface from './components/chatInterface/ChatInterface.vue';
 import ControlPanel from './components/ControlPanel.vue';
 import MetricsPanel from './components/metricsPanel/MetricsPanel.vue';
 import ProfileSelector from './components/ProfileSelector.vue';
-import type { QueryOptions } from './types/query.ts';
-import { InformationTier, RagPipeline } from './types/enums.ts';
-import type { EvaluationResult } from './types/evaluationResult.ts';
-import type Profile from './types/profile.ts';
+import { InformationTier, RagPipeline, type EvaluationResult, type Profile, type QueryOptions } from './types/backendTypes.ts';
 import profilesData from './resources/profile.json';
 
 const activeOptions = ref<QueryOptions>({

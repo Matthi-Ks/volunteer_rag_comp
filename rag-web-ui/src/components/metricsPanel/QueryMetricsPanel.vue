@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue';
-import type { EvaluationResult } from '@/types/evaluationResult';
-import { QuestionVariant } from '@/types/enums';
+import type { EvaluationResult } from '@/types/backendTypes';
+import { QuestionVariant } from '@/types/backendTypes';
 
 const props = defineProps<{
    results: EvaluationResult[] | null

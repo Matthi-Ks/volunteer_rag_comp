@@ -2,7 +2,7 @@
 import { PanelLeft, ChevronUp } from 'lucide-vue-next';
 import profilesData from '../resources/profile.json';
 import { onMounted, ref } from 'vue';
-import type Profile from '@/types/profile';
+import type { Profile } from '@/types/backendTypes';
 
 const profiles = ref<Profile[]>(profilesData);
 

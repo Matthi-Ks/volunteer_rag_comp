@@ -27,6 +27,7 @@ paths:
   knowledge_graph: "resources/knowledge_graph"
   HFcache: "resources/HF_cache"
   reference_answers: "resources/datasets/reference_answers.json"
+  sqlite: "resources/sqlite"
 
 # determines which part of the application gets run
 # indexing -> starts indexing phase
