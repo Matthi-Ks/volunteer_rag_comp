@@ -15,11 +15,12 @@ class GraphRag(RagBase):
 
         graph_results = self.graphStore.query_graph(query, 10)
 
-        merged_results: list[RetrievalResult] = ResultFusionService.rrf_with_skill_boost([graph_results],
-                                                                                         query.profile.esco_skills)
+        if query.options.useESCOSkills:
+            merged_results: list[RetrievalResult] = ResultFusionService.rrf_with_skill_boost([graph_results], query.profile.esco_skills)
+        else:
+            merged_results = graph_results
 
-        text_contexts: list[list[str]] = RerankingService.colbert_rerank(list(query.text_variants.values()),
-                                                                         merged_results, 5)
+        text_contexts: list[list[str]] = RerankingService.colbert_rerank(list(query.text_variants.values()), merged_results, 5)
 
         responses: list[PipelineResult] = []
         for context, (questionVariant, query_text) in zip(text_contexts, query.text_variants.items()):

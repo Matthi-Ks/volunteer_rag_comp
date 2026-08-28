@@ -1,34 +1,24 @@
 <script setup lang="ts">
-import { RagPipeline } from '@/types/backendTypes';
+import { RagPipeline, type PipelineSummary } from '@/types/backendTypes';
 import { ref, computed } from 'vue';
+
+const props = defineProps<{
+   metrics: PipelineSummary[];
+}>();
 
 const activeTab = ref<RagPipeline>(RagPipeline.HYBRID);
 
-const mockOverallMetrics = {
-   hybrid: {
-      precision: 0.76,
-      recall: 0.81,
-      faithfulness: 0.79,
-      relevancy: 0.84,
-      tokens: 425100
-   },
-   fusion: {
-      precision: 0.88,
-      recall: 0.89,
-      faithfulness: 0.91,
-      relevancy: 0.87,
-      tokens: 894000
-   },
-   graph: {
-      precision: 0.82,
-      recall: 0.93,
-      faithfulness: 0.71,
-      relevancy: 0.80,
-      tokens: 1542000
-   }
-};
+const activeMetrics = computed(() => {
+   const summary = props.metrics.find(m => m.pipeline_type === activeTab.value);
 
-const activeMetrics = computed(() => mockOverallMetrics[activeTab.value]);
+   return {
+      precision: summary?.avg_context_precision ?? 0,
+      recall: summary?.avg_context_recall ?? 0,
+      faithfulness: summary?.avg_faithfulness ?? 0,
+      relevancy: summary?.avg_answer_relevancy ?? 0,
+      tokens: summary?.avg_token_count ?? 0,
+   };
+});
 
 const formatScore = (val: number) => val.toFixed(2);
 
@@ -39,8 +29,8 @@ const getScoreColorClass = (score: number) => {
 };
 
 const determineBarWidth = (score: number) => {
-    if (score >= 0) return `${score*100}%`;
-    return '0%';
+   if (score >= 0) return `${score * 100}%`;
+   return '0%';
 };
 </script>
 
@@ -56,17 +46,13 @@ const determineBarWidth = (score: number) => {
       </div>
 
       <div class="grid grid-cols-3 gap-1 bg-slate-200/60 p-1 rounded-lg">
-         <button 
-            v-for="pipeline in ([RagPipeline.HYBRID, RagPipeline.GRAPH, RagPipeline.FUSION] as const)" 
-            :key="pipeline"
-            @click="activeTab = pipeline"
-            :class="[
+         <button v-for="pipeline in ([RagPipeline.HYBRID, RagPipeline.GRAPH, RagPipeline.FUSION] as const)"
+            :key="pipeline" @click="activeTab = pipeline" :class="[
                'py-1 text-[10px] font-medium capitalize rounded transition duration-200',
                activeTab === pipeline
-                  ? 'bg-white text-blue-600 shadow-sm font-semibold' 
+                  ? 'bg-white text-blue-600 shadow-sm font-semibold'
                   : 'text-slate-600 hover:text-slate-900'
-            ]"
-         >
+            ]">
             {{ pipeline }}
          </button>
       </div>
@@ -79,11 +65,9 @@ const determineBarWidth = (score: number) => {
                   <span class="font-bold text-slate-800">{{ formatScore(activeMetrics.precision) }}</span>
                </div>
                <div class="w-full h-1.5 bg-slate-200 rounded-full overflow-hidden">
-                  <div 
-                     class="h-full transition-all duration-500 ease-out"
+                  <div class="h-full transition-all duration-500 ease-out"
                      :class="getScoreColorClass(activeMetrics.precision)"
-                     :style="{ width: determineBarWidth(activeMetrics.precision) }"
-                  ></div>
+                     :style="{ width: determineBarWidth(activeMetrics.precision) }"></div>
                </div>
             </div>
 
@@ -93,11 +77,9 @@ const determineBarWidth = (score: number) => {
                   <span class="font-bold text-slate-800">{{ formatScore(activeMetrics.recall) }}</span>
                </div>
                <div class="w-full h-1.5 bg-slate-200 rounded-full overflow-hidden">
-                  <div 
-                     class="h-full transition-all duration-500 ease-out"
+                  <div class="h-full transition-all duration-500 ease-out"
                      :class="getScoreColorClass(activeMetrics.recall)"
-                     :style="{ width: determineBarWidth(activeMetrics.recall) }"
-                  ></div>
+                     :style="{ width: determineBarWidth(activeMetrics.recall) }"></div>
                </div>
             </div>
 
@@ -107,11 +89,9 @@ const determineBarWidth = (score: number) => {
                   <span class="font-bold text-slate-800">{{ formatScore(activeMetrics.faithfulness) }}</span>
                </div>
                <div class="w-full h-1.5 bg-slate-200 rounded-full overflow-hidden">
-                  <div 
-                     class="h-full transition-all duration-500 ease-out"
+                  <div class="h-full transition-all duration-500 ease-out"
                      :class="getScoreColorClass(activeMetrics.faithfulness)"
-                     :style="{ width: determineBarWidth(activeMetrics.faithfulness) }"
-                  ></div>
+                     :style="{ width: determineBarWidth(activeMetrics.faithfulness) }"></div>
                </div>
             </div>
 
@@ -121,11 +101,9 @@ const determineBarWidth = (score: number) => {
                   <span class="font-bold text-slate-800">{{ formatScore(activeMetrics.relevancy) }}</span>
                </div>
                <div class="w-full h-1.5 bg-slate-200 rounded-full overflow-hidden">
-                  <div 
-                     class="h-full transition-all duration-500 ease-out"
+                  <div class="h-full transition-all duration-500 ease-out"
                      :class="getScoreColorClass(activeMetrics.relevancy)"
-                     :style="{ width: determineBarWidth(activeMetrics.relevancy) }"
-                  ></div>
+                     :style="{ width: determineBarWidth(activeMetrics.relevancy) }"></div>
                </div>
             </div>
          </div>

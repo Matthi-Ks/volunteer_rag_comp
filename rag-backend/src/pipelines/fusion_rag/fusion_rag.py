@@ -12,20 +12,23 @@ from pipelines.services.result_fusion_service import ResultFusionService
 class FusionRag(RagBase):
 
     def execute_pipeline(self, query: Query) -> list[PipelineResult]:
-        query_cpy = query.__deepcopy__()
-        # todo include in token count
         ref_resp = LLMService.reformulate_query_texts(query.text_variants)
         reformulated_query_texts: FusionRAGResponse = ref_resp[0]
         ref_tokens = ref_resp[1]
 
         retrieval_result_set = []
-        for variants in reformulated_query_texts:
+        for variants in reformulated_query_texts.packets:
+            query_cpy = query.__deepcopy__()
             query_cpy.text_variants = variants
+
             query_cpy = QueryPreprocessingService.query_preprocessing(query_cpy)
             vector_results: list[RetrievalResult] = self.vectorStore.semantic_similarity_search(query_cpy, n=10)
             retrieval_result_set.append(vector_results)
 
-        merged_results: list[RetrievalResult] = ResultFusionService.rrf(retrieval_result_set)
+        if query.options.useESCOSkills:
+            merged_results: list[RetrievalResult] = ResultFusionService.rrf_with_skill_boost(retrieval_result_set, query.profile.esco_skills)
+        else:
+            merged_results: list[RetrievalResult] = ResultFusionService.rrf(retrieval_result_set)
 
         text_contexts: list[list[str]] = RerankingService.colbert_rerank(list(query.text_variants.values()), merged_results, 5)
 

@@ -7,7 +7,7 @@ from models.profile import Profile
 class QueryOptions(BaseModel):
     informationTier: InformationTier
     pipeline: RagPipeline
-    useMetadataFilter: bool
+    useMaT: bool
     useESCOSkills: bool
 
 class Query(BaseModel):

@@ -104,7 +104,9 @@ const sendQuery = async () => {
    const selected = selectedQueryObj.value;
    if (!isSelectionComplete.value || !selected || isSending.value) return;
 
-const queryPayload: Query = {
+   console.log(selectedRegion.value, selectedTimeframe.value)
+
+   const queryPayload: Query = {
       profile: props.selectedProfile,
       query_id: selected.id,
       text_variants: selected.formattedVariants,

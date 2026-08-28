@@ -1,12 +1,24 @@
 <script setup lang="ts">
-import type { EvaluationResult } from '@/types/backendTypes.ts';
+import type { EvaluationResult, PipelineSummary } from '@/types/backendTypes.ts';
 import QueryMetricsPanel from './QueryMetricsPanel.vue';
 import PipelineMetricsPanel from './PipelineMetricsPanel.vue';
+import { ref, watch } from 'vue';
+import { get_pipeline_summaries } from '@/ts/rest.ts';
 
 
-defineProps<{
+const props = defineProps<{
    results: EvaluationResult[] | null
 }>();
+
+const metrics = ref<PipelineSummary[]>([]);
+
+watch(
+   () => props.results,
+   async () => {
+      metrics.value = await get_pipeline_summaries();
+   },
+   { immediate: true }
+);
 </script>
 
 <template>
@@ -15,6 +27,6 @@ defineProps<{
 
       <hr class="border-slate-200/80" />
 
-      <PipelineMetricsPanel />
+      <PipelineMetricsPanel :metrics="metrics" />
    </div>
 </template>

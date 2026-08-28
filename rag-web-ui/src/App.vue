@@ -10,7 +10,7 @@ import profilesData from './resources/profile.json';
 const activeOptions = ref<QueryOptions>({
     pipeline: RagPipeline.HYBRID,
     informationTier: InformationTier.MaT_TITLE_DESC,
-    useMetadataFilter: true,
+    useMaT: true,
     useESCOSkills: false
 });
 

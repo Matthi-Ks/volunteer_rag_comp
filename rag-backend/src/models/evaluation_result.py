@@ -4,7 +4,6 @@ from pydantic import BaseModel, field_validator
 
 from models.enums import QuestionVariant
 
-# todo add more metrics
 class EvaluationResult(BaseModel):
     answer: str
     question_variant: QuestionVariant

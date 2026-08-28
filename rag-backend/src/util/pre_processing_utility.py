@@ -46,7 +46,7 @@ class PreProcessingUtility:
                     tier: template.format(
                         mat_prefix=MaT_PREFIX_TEMPLATE.format(
                             region=extr_metadata.region,
-                            timeframe=extr_metadata.timeframe
+                            timeframe=extr_metadata.timeFrame
                         ),
                         title=row.title,
                         description=row.description,

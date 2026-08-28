@@ -46,14 +46,14 @@ export interface EvaluationResult {
 export interface PipelineSummary {
     pipeline_type: RagPipeline,
     information_tier: InformationTier,
-    use_metadata_filter: boolean,
+    use_Mat: boolean,
     use_esco_skills: boolean,
     total_runs: number,
     avg_faithfulness: number,
     avg_answer_relevancy: number,
     avg_context_precision: number,
     avg_context_recall: number,
-    sum_token_count: number,
+    avg_token_count: number,
 }
 
 export interface Profile {
@@ -73,7 +73,7 @@ export interface Query {
 export interface QueryOptions {
     informationTier: InformationTier;
     pipeline: RagPipeline;
-    useMetadataFilter: boolean;
+    useMaT: boolean;
     useESCOSkills: boolean;
 }
 

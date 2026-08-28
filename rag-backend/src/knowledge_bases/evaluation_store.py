@@ -9,7 +9,7 @@ from util.config_loader import load_config
 
 config = load_config()
 
-DB_FILE_NAME="evaluation.db"
+DB_FILE_NAME="evaluationv2.db"
 
 class EvaluationStore:
     def __init__(self):
@@ -20,13 +20,14 @@ class EvaluationStore:
     def _init_db(self):
         os.makedirs(self.path, exist_ok=True)
         with self._get_connection() as conn:
+            conn.execute("PRAGMA journal_mode=WAL;")
             conn.execute("""
             CREATE TABLE IF NOT EXISTS evaluation_results (
                 id TEXT PRIMARY KEY,
                 timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
                 pipeline_type TEXT NOT NULL,
                 information_tier TEXT NOT NULL,
-                use_metadata_filter BOOLEAN NOT NULL,
+                use_MaT BOOLEAN NOT NULL,
                 use_esco_skills BOOLEAN NOT NULL,
                 faithfulness REAL,
                 answer_relevancy REAL,
@@ -38,7 +39,7 @@ class EvaluationStore:
 
             conn.execute("""
             CREATE INDEX IF NOT EXISTS idx_pipeline_config 
-            ON evaluation_results (pipeline_type, information_tier, use_metadata_filter, use_esco_skills);
+            ON evaluation_results (pipeline_type, information_tier, use_MaT, use_esco_skills);
             """)
             conn.commit()
 
@@ -56,7 +57,7 @@ class EvaluationStore:
         with self._get_connection() as conn:
             conn.execute("""
             INSERT INTO evaluation_results (
-                id, pipeline_type, information_tier, use_metadata_filter, 
+                id, pipeline_type, information_tier, use_MaT, 
                 use_esco_skills, faithfulness, answer_relevancy, 
                 context_precision, context_recall, token_count
             ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
@@ -64,7 +65,7 @@ class EvaluationStore:
                 record_id,
                 pipeline_val,
                 tier_val,
-                query_options.useMetadataFilter,
+                query_options.useMaT,
                 query_options.useESCOSkills,
                 result.faithfulness,
                 result.answer_relevance,
@@ -80,7 +81,7 @@ class EvaluationStore:
         SELECT 
             pipeline_type,
             information_tier,
-            use_metadata_filter,
+            use_MaT,
             use_esco_skills,
             COUNT(*) as total_runs,
             ROUND(AVG(faithfulness), 4) as avg_faithfulness,
@@ -92,7 +93,7 @@ class EvaluationStore:
         GROUP BY 
             pipeline_type, 
             information_tier, 
-            use_metadata_filter, 
+            use_MaT, 
             use_esco_skills
         ORDER BY pipeline_type, information_tier;
         """
@@ -105,7 +106,7 @@ class EvaluationStore:
                 PipelineSummary(
                     pipeline_type=row["pipeline_type"],
                     information_tier=row["information_tier"],
-                    use_metadata_filter=bool(row["use_metadata_filter"]),
+                    use_MaT=bool(row["use_MaT"]),
                     use_esco_skills=bool(row["use_esco_skills"]),
                     total_runs=row["total_runs"],
                     avg_faithfulness=row["avg_faithfulness"],

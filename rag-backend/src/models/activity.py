@@ -1,6 +1,6 @@
 from enum import Enum
 from typing import Optional, Any
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 from models.enums import InformationTier
 
@@ -20,7 +20,7 @@ class ActivityMetadata(BaseModel):
         default=Region.REMOTE,
         description="Categorize the primary region where the activity takes place. Northern CA includes Sacramento, Bay Area, etc."
     )
-    timeframe: StartTimeframe = Field(
+    timeFrame: StartTimeframe = Field(
         default=StartTimeframe.ASAP,
         description="Categorize the starting timeframe for the activity that falls either in the summer half of the year or the winter half."
     )

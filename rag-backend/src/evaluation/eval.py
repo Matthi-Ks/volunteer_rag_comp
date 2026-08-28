@@ -1,4 +1,5 @@
 import json
+import math
 
 from util.llm_factory import LLMFactory
 from dotenv import load_dotenv
@@ -30,7 +31,7 @@ async def evaluate(query: Query, pipeline: RagBase) -> list[EvaluationResult]:
 
     reference_contexts = get_reference_context(
         region=query.filter_values.region,
-        timeframe=query.filter_values.timeframe,
+        timeframe=query.filter_values.timeFrame,
         question_id=query.query_id,
         information_tier=query.options.informationTier
     )
@@ -38,7 +39,7 @@ async def evaluate(query: Query, pipeline: RagBase) -> list[EvaluationResult]:
     eval_results: list[EvaluationResult] = []
     for answer in answers:
         user_input_text = query.text_variants.get(answer.questionVariant)
-        contexts = answer.used_context if answer.used_context is not None else []
+        contexts = answer.used_context if answer.used_context is not None else ["NO_RELEVANT_CONTEXT_FOUND"]
 
         faithfulness = await faithfulness_scorer.ascore(
             response=answer.model_response,
@@ -51,35 +52,30 @@ async def evaluate(query: Query, pipeline: RagBase) -> list[EvaluationResult]:
             user_input=user_input_text
         )
 
-        # If no contexts should exist, precision and recall are  1.0 if retriever pulled nothing, else 0.0
         if not reference_contexts:
-            context_precision_val = 1.0 if len(contexts) == 0 else 0.0
-            context_recall_val = 1.0 if len(contexts) == 0 else 0.0
+            reference_text = ["NO_RELEVANT_CONTEXT_FOUND"]
         else:
             reference_text = "\n\n".join(reference_contexts)
 
-            context_recall = await context_recall_scorer.ascore(
-                user_input=user_input_text,
-                retrieved_contexts=contexts,
-                reference=reference_text
-            )
+        context_recall = await context_recall_scorer.ascore(
+            user_input=user_input_text,
+            retrieved_contexts=contexts,
+            reference=reference_text
+        )
 
-            context_precision = await context_precision_scorer.ascore(
-                user_input=user_input_text,
-                retrieved_contexts=contexts,
-                reference=reference_text
-            )
-
-            context_precision_val = context_precision.value
-            context_recall_val = context_recall.value
+        context_precision = await context_precision_scorer.ascore(
+            user_input=user_input_text,
+            retrieved_contexts=contexts,
+            reference=reference_text
+        )
 
         eval_results.append(EvaluationResult(
             answer=answer.model_response,
             question_variant=answer.questionVariant,
             faithfulness=faithfulness.value,
             answer_relevance=answer_relevancy.value,
-            context_recall=context_recall_val,
-            context_precision=context_precision_val,
+            context_recall=context_recall.value,
+            context_precision=context_precision.value,
             token_count=answer.tokens_used,
             context=contexts,
             matching_skills=[] #todo
@@ -95,6 +91,8 @@ def get_reference_context(region, timeframe, question_id, information_tier) -> l
                     contexts = []
                     for elem in q.get("contexts"):
                         contexts.append(elem.get(information_tier.value))
+
+
 
                     return contexts
 

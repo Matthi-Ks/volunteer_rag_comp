@@ -97,7 +97,7 @@ class GraphStore:
                 "emb_title_desc": title_desc_embeddings[idx],
                 "soft_skills": item.soft_skills or [],
                 "region": item.metadata.region,
-                "timeframe": item.metadata.timeframe
+                "timeframe": item.metadata.timeFrame
             })
 
         return batch_data
@@ -109,7 +109,7 @@ class GraphStore:
         )
         index_name = "index_title_desc" if use_desc else "index_title_only"
 
-        include_mat = query.options.useMetadataFilter
+        include_mat = query.options.useMaT
         include_skills = query.options.useESCOSkills
 
         neo4j_results = []

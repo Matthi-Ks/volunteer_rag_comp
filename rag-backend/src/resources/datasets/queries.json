@@ -1,9 +1,26 @@
-{
-   "query_id": 1,
-   "targeted_sector": "",
-   "variations" : {
-      "normal": "",
-      "abstract": "",
-      "detailed": ""
-   }
-}
+[
+    {
+        "id": 4,
+        "text_variants": {
+          "normal": "What volunteer positions are available in the Education sector in [location] for [timeframe]?",
+          "abstract": "Find all educational support, tutoring, and student mentorship opportunities around [location] within [timeframe].",
+          "detailed": "I am looking for any opportunities related to education, teaching, or mentoring students. I am open to working with any amount of students, adults, or low-income youth in [location] starting [timeframe]."
+        }
+    },
+    {
+        "id": 5,
+        "text_variants": {
+          "normal": "Are there any health, senior care, or hospice volunteer opportunities in [location] during [timeframe]?",
+          "abstract": "List healthcare-related, senior living, and palliative care volunteer roles available in [location] within [timeframe].",
+          "detailed": "I want to contribute to the health and social care sector. Whether it involves directly visiting hospice patients, supporting senior facilities, or assisting phone outreach teams in [location] during [timeframe]."
+        }
+    },
+    {
+        "id": 6,
+        "text_variants": {
+          "normal": "I am looking for community welfare or non-profit support roles in [location] for [timeframe].",
+          "abstract": "What general non-profit operations, community social work, or fundraising roles exist in [location] within [timeframe]?",
+          "detailed": "I want to help social welfare organizations with their general operations, whether through food distribution, fundraising campaigns, administrative assistance, or community advocacy in [location] during [timeframe]."
+        }
+    }
+]

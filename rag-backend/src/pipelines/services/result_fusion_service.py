@@ -39,7 +39,6 @@ class ResultFusionService:
             boost_alpha = 0.5 * (1.0 / (k + 1))
 
         for result in merged_results:
-            # Extract doc skills from metadata
             doc_skills = result.associated_skills
             if not doc_skills:
                 continue
@@ -48,11 +47,9 @@ class ResultFusionService:
             if not doc_skill_set:
                 continue
 
-            # Calculate One-Way Coverage Ratio (User Matches / Document Requirements)
             intersection_count = len(user_skill_set.intersection(doc_skill_set))
             coverage_ratio = intersection_count / len(doc_skill_set)
 
-            # Boost the existing RRF score in-place on the cloned result
             result.scores.rrf += boost_alpha * coverage_ratio
 
         return sorted(merged_results, key=lambda x: x.scores.rrf, reverse=True)

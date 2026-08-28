@@ -7,8 +7,8 @@ class QueryPreprocessingService:
     @staticmethod
     def query_preprocessing(query: Query) -> Query:
         metadata_prefix = ""
-        if query.options.useMetadataFilter and query.filter_values:
-            metadata_prefix = f"Metadata: [Region: {query.filter_values.region}] [Timeframe: {query.filter_values.timeframe}] "
+        if query.options.useMaT and query.filter_values:
+            metadata_prefix = f"Metadata: [Region: {query.filter_values.region}] [Timeframe: {query.filter_values.timeFrame}] "
 
         for key in query.text_variants.keys():
             clean_text = " ".join(query.text_variants[key].lower().strip().split())

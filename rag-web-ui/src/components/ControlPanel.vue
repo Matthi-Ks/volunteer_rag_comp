@@ -11,14 +11,14 @@ const emit = defineEmits<{
 const selectedPipeline = ref<RagPipeline>(RagPipeline.HYBRID);
 const useESCOData = ref<boolean>(false);
 const useTitleOnly = ref<boolean>(false);
-const useHardFilter = ref<boolean>(true);
+const useMaT = ref<boolean>(true);
 
 const queryOptions = computed<QueryOptions>(() => ({
    pipeline: selectedPipeline.value,
-   informationTier: useHardFilter.value
+   informationTier: useMaT.value
       ? (useTitleOnly.value ? InformationTier.MaT_TITLE_ONLY : InformationTier.MaT_TITLE_DESC)
       : (useTitleOnly.value ? InformationTier.TITLE_ONLY : InformationTier.TITLE_DESC),
-   useMetadataFilter: useHardFilter.value,
+   useMaT: useMaT.value,
    useESCOSkills: useESCOData.value
 }));
 
@@ -75,11 +75,11 @@ watch(queryOptions, (newVal) => {
 
             <div class="flex items-center justify-between pt-2">
                <div class="flex flex-col pr-4">
-                  <span>use hard metadata filter</span>
+                  <span>use metadata as text</span>
                </div>
 
                <label class="relative inline-flex items-center cursor-pointer select-none">
-                  <input type="checkbox" v-model="useHardFilter" class="sr-only peer" checked />
+                  <input type="checkbox" v-model="useMaT" class="sr-only peer" checked />
                   <div
                      class="w-7 h-4 bg-slate-300 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-blue-600 dark:peer-checked:bg-blue-500 border border-slate-200">
                   </div>
